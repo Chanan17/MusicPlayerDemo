@@ -31,7 +31,20 @@ class MusicDetailActivity : AppCompatActivity() {
 
     private var currentSongIndex: Int = -1
     private lateinit var musicFilePaths: Array<String>
-    private var mediaPlayer: MediaPlayer? = null
+    private lateinit var musicService: MusicService
+    private var isBound = false
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as MusicService.LocalBinder
+            musicService = binder.getService()
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            isBound = false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,15 +66,23 @@ class MusicDetailActivity : AppCompatActivity() {
         }
 
         playPauseButton.setOnClickListener {
-            if (mediaPlayer?.isPlaying == true) {
-                pauseMusic()
-            } else {
-                resumeMusic()
+            if (isBound) {
+                if (musicService.isPlaying()) {
+                    musicService.pauseMusic()
+                    playPauseButton.setImageResource(R.drawable.ic_play)
+                } else {
+                    musicService.resumeMusic()
+                    playPauseButton.setImageResource(R.drawable.ic_pause)
+                }
             }
         }
 
         prevButton.setOnClickListener { playPreviousSong() }
         nextButton.setOnClickListener { playNextSong() }
+
+        // 绑定服务
+        val intent = Intent(this, MusicService::class.java)
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     private fun updateMusicDetail(filePath: String) {
@@ -94,34 +115,24 @@ class MusicDetailActivity : AppCompatActivity() {
     }
 
     private fun playMusic(filePath: String) {
-        mediaPlayer?.release()
-        mediaPlayer = null
-
-        mediaPlayer = MediaPlayer().apply {
-            try {
-                setDataSource(filePath)
-                prepare()
-                start()
-
-                setOnCompletionListener {
-                    playNextSong()
-                }
-            } catch (e: IOException) {
-                showErrorMessage("无法播放音乐文件")
-            }
+        if (isBound) {
+            musicService.playMusic(filePath)
+            playPauseButton.setImageResource(R.drawable.ic_pause)
         }
-
-        playPauseButton.setImageResource(R.drawable.ic_pause)
     }
 
     private fun pauseMusic() {
-        mediaPlayer?.pause()
-        playPauseButton.setImageResource(R.drawable.ic_play)
+        if (isBound) {
+            musicService.pauseMusic()
+            playPauseButton.setImageResource(R.drawable.ic_play)
+        }
     }
 
     private fun resumeMusic() {
-        mediaPlayer?.start()
-        playPauseButton.setImageResource(R.drawable.ic_pause)
+        if (isBound) {
+            musicService.resumeMusic()
+            playPauseButton.setImageResource(R.drawable.ic_pause)
+        }
     }
 
     private fun playPreviousSong() {
@@ -144,7 +155,10 @@ class MusicDetailActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.release()
+        if (isBound) {
+            unbindService(serviceConnection)
+            isBound = false
+        }
     }
 }
 

@@ -36,8 +36,6 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var adapter: MusicAdapter
     private lateinit var binding: ActivityMainBinding
-    private var mediaPlayer: MediaPlayer? = null
-    private val REQUEST_MEDIA_AUDIO = 1
     private var currentSongIndex: Int = -1
     private lateinit var playPauseButton: ImageButton
     private lateinit var prevButton: ImageButton
@@ -45,6 +43,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var songTitle: TextView
     private lateinit var songArtist: TextView
     private lateinit var albumCover: ImageView
+    private lateinit var musicService: MusicService
+    private var isBound = false
+
+    private val REQUEST_MEDIA_AUDIO = 1
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as MusicService.LocalBinder
+            musicService = binder.getService()
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            isBound = false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,8 +101,8 @@ class MainActivity : AppCompatActivity() {
                 // 当前点击的歌曲已经在播放，进入详情页
                 val intent = Intent(this, MusicDetailActivity::class.java)
                 val filePaths = viewModel.musicFiles.value?.map { it.filePath }?.toTypedArray()
-                intent.putExtra("musicFiles",filePaths)
-                intent.putExtra("currentSongIndex",currentSongIndex)
+                intent.putExtra("musicFiles", filePaths)
+                intent.putExtra("currentSongIndex", currentSongIndex)
                 startActivity(intent)
             } else {
                 // 播放新的歌曲
@@ -96,7 +110,6 @@ class MainActivity : AppCompatActivity() {
                 playMusic(filePath)
             }
         }
-
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
@@ -111,67 +124,46 @@ class MainActivity : AppCompatActivity() {
         })
 
         playPauseButton.setOnClickListener {
-            if (mediaPlayer?.isPlaying == true) {
-                pauseMusic()
-            } else {
-                resumeMusic()
+            if (isBound) {
+                if (musicService.isPlaying()) {
+                    musicService.pauseMusic()
+                    playPauseButton.setImageResource(R.drawable.ic_play)
+                } else {
+                    musicService.resumeMusic()
+                    playPauseButton.setImageResource(R.drawable.ic_pause)
+                }
             }
         }
 
         prevButton.setOnClickListener { playPreviousSong() }
         nextButton.setOnClickListener { playNextSong() }
+
+        // 绑定服务
+        val intent = Intent(this, MusicService::class.java)
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
-
-
 
     private fun playMusic(filePath: String) {
-        mediaPlayer?.release()
-        mediaPlayer = null
-
-        mediaPlayer = MediaPlayer().apply {
-            try {
-                setDataSource(filePath)
-                prepare()
-                start()
-                Log.d("MainActivity", "Music is playing...")
-
-                setOnCompletionListener {
-                    Log.d("MainActivity", "Music playback completed.")
-                    playNextSong()
-                }
-            } catch (e: IOException) {
-                Log.e("MainActivity", "Error setting data source or preparing media player", e)
-                showErrorMessage("无法播放音乐文件")
-            } catch (e: IllegalArgumentException) {
-                Log.e("MainActivity", "Invalid argument provided to media player", e)
-                showErrorMessage("无法播放音乐文件")
-            } catch (e: SecurityException) {
-                Log.e("MainActivity", "Permission denied while accessing the file", e)
-                showErrorMessage("无法播放音乐文件")
-            } catch (e: IllegalStateException) {
-                Log.e("MainActivity", "Media player is in an illegal state", e)
-                showErrorMessage("无法播放音乐文件")
-            }
+        if (isBound) {
+            musicService.playMusic(filePath)
+            viewModel.musicFiles.value?.get(currentSongIndex)?.let { updateBottomControlBar(it) }
+            playPauseButton.setImageResource(R.drawable.ic_pause)
+            updateControlButtons(true)
         }
-
-        viewModel.musicFiles.value?.get(currentSongIndex)?.let { updateBottomControlBar(it) }
-        playPauseButton.setImageResource(R.drawable.ic_pause)
-        updateControlButtons(true)
-    }
-
-    private fun showErrorMessage(message: String) {
-        // 可以根据需要显示错误消息，这里使用 Toast 举例
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun pauseMusic() {
-        mediaPlayer?.pause()
-        playPauseButton.setImageResource(R.drawable.ic_play)
+        if (isBound) {
+            musicService.pauseMusic()
+            playPauseButton.setImageResource(R.drawable.ic_play)
+        }
     }
 
     private fun resumeMusic() {
-        mediaPlayer?.start()
-        playPauseButton.setImageResource(R.drawable.ic_pause)
+        if (isBound) {
+            musicService.resumeMusic()
+            playPauseButton.setImageResource(R.drawable.ic_pause)
+        }
     }
 
     private fun playPreviousSong() {
@@ -204,7 +196,6 @@ class MainActivity : AppCompatActivity() {
             albumCover.setImageResource(R.drawable.ic_album_placeholder)
         }
     }
-
 
     private fun setAlbumCover(filePath: String) {
         val retriever = MediaMetadataRetriever()
@@ -243,6 +234,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.release()
+        if (isBound) {
+            unbindService(serviceConnection)
+            isBound = false
+        }
     }
 }

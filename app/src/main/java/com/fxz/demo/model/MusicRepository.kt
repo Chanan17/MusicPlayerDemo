@@ -56,7 +56,6 @@ class MusicRepository(private val context: Context) {
 
         val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) ?: file.nameWithoutExtension
         val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: "Unknown Artist"
-        val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION) ?: ""
         val art = retriever.embeddedPicture
         val albumArt = if (art != null) {
             BitmapFactory.decodeByteArray(art, 0, art.size)
