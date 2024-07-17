@@ -6,6 +6,8 @@ import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import androidx.core.view.KeyEventDispatcher.Component
+import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
 import java.io.IOException
 
 class MusicService : Service() {
@@ -40,7 +42,11 @@ class MusicService : Service() {
                     prepare()
                     start()
                     setOnCompletionListener {
-                        playNextSong()
+                        Log.d("Service","end")
+                        val intent = Intent(ACTION_PLAY_NEXT_SONG)
+                        intent.setPackage("com.fxz.demo")
+                        sendBroadcast(intent)
+                        Log.d("MusicService","broadcastsent")
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
