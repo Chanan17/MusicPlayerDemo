@@ -113,7 +113,7 @@ class MusicDetailActivity : AppCompatActivity() {
             totalTime.text = progressFormat(music.duration)
             currentTime.text = getCurProgress()?.let { progressFormat(it) }
             seekBar.max = music.duration
-
+            seekBar.progress = getCurProgress()?.toInt() ?: 0
             updateSeekBar()
 
         }
