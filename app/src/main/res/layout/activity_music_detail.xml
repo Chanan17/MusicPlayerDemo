@@ -26,34 +26,60 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:textSize="18sp" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="24dp">
+
+        <TextView
+            android:id="@+id/current_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:layout_marginEnd="8dp" />
+
+        <SeekBar
+            android:id="@+id/seek_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/total_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/prev_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_prev"
-            android:contentDescription="@string/prev" />
+            android:contentDescription="@string/prev"
+            android:src="@drawable/ic_prev" />
 
         <ImageButton
             android:id="@+id/play_pause_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_play"
             android:layout_marginStart="32dp"
             android:layout_marginEnd="32dp"
-            android:contentDescription="@string/play_pause" />
+            android:contentDescription="@string/play_pause"
+            android:src="@drawable/ic_play" />
 
         <ImageButton
             android:id="@+id/next_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_next"
-            android:contentDescription="@string/next" />
+            android:contentDescription="@string/next"
+            android:src="@drawable/ic_next" />
     </LinearLayout>
 </LinearLayout>

@@ -6,5 +6,6 @@ data class MusicData(
     val title: String,
     val artist: String,
     val filePath: String,
-    var albumArt: Bitmap? = null
+    var albumArt: Bitmap? = null,
+    val duration: Int
 )

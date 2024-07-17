@@ -93,4 +93,8 @@ class MusicService : Service() {
         super.onDestroy()
         mediaPlayer?.release()
     }
+
+    fun getCurProgress():Int {
+        return mediaPlayer?.currentPosition ?: 0
+    }
 }

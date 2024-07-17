@@ -1,36 +1,25 @@
 package com.fxz.demo.view
 
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.ServiceConnection
-import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.SeekBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.fxz.demo.R
 import com.fxz.demo.model.MusicData
-import com.fxz.demo.model.MusicModel.isPlaying
-import com.fxz.demo.model.MusicModel.pauseMusic
-import com.fxz.demo.model.MusicModel.playNextSong
-import com.fxz.demo.model.MusicModel.playPreviousSong
-import com.fxz.demo.model.MusicModel.resumeMusic
-import com.fxz.demo.model.MusicService
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
-import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
 import com.fxz.demo.viewmodel.MusicViewModel
-import java.io.File
 
 class MusicDetailActivity : AppCompatActivity() {
     private val viewModel: MusicViewModel by viewModels()
@@ -40,6 +29,9 @@ class MusicDetailActivity : AppCompatActivity() {
     private lateinit var songTitle: TextView
     private lateinit var songArtist: TextView
     private lateinit var albumCover: ImageView
+    private lateinit var seekBar: SeekBar
+    private lateinit var currentTime: TextView
+    private lateinit var totalTime: TextView
 
     private var broadcastIsBound = false
 
@@ -53,6 +45,9 @@ class MusicDetailActivity : AppCompatActivity() {
         songTitle = findViewById(R.id.song_title)
         songArtist = findViewById(R.id.song_artist)
         albumCover = findViewById(R.id.album_cover)
+        seekBar = findViewById(R.id.seek_bar)
+        currentTime = findViewById(R.id.current_time)
+        totalTime = findViewById(R.id.total_time)
 
         playPauseButton.setOnClickListener {
             if (viewModel.isPlaying()) {
@@ -115,8 +110,29 @@ class MusicDetailActivity : AppCompatActivity() {
                 playPauseButton.setImageResource(R.drawable.ic_play)
             }
 
+            totalTime.text = progressFormat(music.duration)
+            currentTime.text = getCurProgress()?.let { progressFormat(it) }
+            seekBar.max = music.duration
+
+            updateSeekBar()
+
         }
     }
+    private val handler = Handler(Looper.getMainLooper())
+
+    private fun updateSeekBar() {
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                if (isPlaying()) {
+                    val process = getCurProgress()?.toInt() ?: 0
+                    currentTime.text = progressFormat(process)
+                    seekBar.progress = process
+                }
+                handler.postDelayed(this, 1000)
+            }
+        }, 1000)
+    }
+
 
     private fun pauseMusic() {
         viewModel.pauseMusic()
@@ -147,5 +163,29 @@ class MusicDetailActivity : AppCompatActivity() {
     }
 
     private fun isPlaying() = viewModel.isPlaying()
+
+    private fun getCurProgress() = viewModel.getCurProgress()
+
+    private fun progressFormat(progress: Int): String {
+        val curProgress = progress / 1000
+        val min = curProgress / 60
+        val second = curProgress % 60
+
+        // 格式化秒数
+        val strSecond = if (second < 10) {
+            "0$second"
+        } else {
+            "$second"
+        }
+
+        // 格式化分钟数
+        val strMin = if (min < 10) {
+            "0$min"
+        } else {
+            "$min"
+        }
+
+        return "$strMin:$strSecond"
+    }
 }
 

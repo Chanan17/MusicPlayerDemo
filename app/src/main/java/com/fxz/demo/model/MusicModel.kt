@@ -112,9 +112,11 @@ object MusicModel {
         } else {
             null
         }
+        val duration: Int = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toInt() ?: 0
+
         retriever.release()
 
-        return MusicData(title, artist, file.absolutePath, albumArt)
+        return MusicData(title, artist, file.absolutePath, albumArt, duration)
     }
 
     fun isPlaying(): Boolean {
@@ -174,6 +176,8 @@ object MusicModel {
             null
         }
     }
+
+    fun getCurProgress() = musicService?.getCurProgress()
 
 
 }

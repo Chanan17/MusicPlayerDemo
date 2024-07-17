@@ -60,4 +60,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         model.bindService(conetext)
     }
 
+    fun getCurProgress() = model.getCurProgress()
+
 }
