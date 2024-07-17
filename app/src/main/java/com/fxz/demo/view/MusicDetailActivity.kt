@@ -6,22 +6,22 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.fxz.demo.R
-import com.fxz.demo.model.Music
 import com.fxz.demo.model.MusicService
+import com.fxz.demo.viewmodel.MainViewModel
 import java.io.File
-import java.io.IOException
 
 class MusicDetailActivity : AppCompatActivity() {
-
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var playPauseButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var nextButton: ImageButton
@@ -123,6 +123,7 @@ class MusicDetailActivity : AppCompatActivity() {
 
     private fun pauseMusic() {
         if (isBound) {
+            Log.d("Detail","pause")
             musicService.pauseMusic()
             playPauseButton.setImageResource(R.drawable.ic_play)
         }
@@ -139,6 +140,7 @@ class MusicDetailActivity : AppCompatActivity() {
         if (musicFilePaths.isNotEmpty()) {
             currentSongIndex = if (currentSongIndex > 0) currentSongIndex - 1 else musicFilePaths.size - 1
             updateMusicDetail(musicFilePaths[currentSongIndex])
+            viewModel.setCurrentSongIndex(currentSongIndex)
         }
     }
 
@@ -147,6 +149,8 @@ class MusicDetailActivity : AppCompatActivity() {
             currentSongIndex = (currentSongIndex + 1) % musicFilePaths.size
             updateMusicDetail(musicFilePaths[currentSongIndex])
         }
+        viewModel.setCurrentSongIndex(currentSongIndex)
+
     }
 
     private fun showErrorMessage(message: String) {

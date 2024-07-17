@@ -14,29 +14,23 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.fxz.demo.R
-import com.fxz.demo.model.Music
+import com.fxz.demo.model.MusicData
 import com.fxz.demo.databinding.ActivityMainBinding
 import com.fxz.demo.model.MusicService
-import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var adapter: MusicAdapter
     private lateinit var binding: ActivityMainBinding
-    private var currentSongIndex: Int = -1
     private lateinit var playPauseButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var nextButton: ImageButton
@@ -97,16 +91,16 @@ class MainActivity : AppCompatActivity() {
 
         adapter = MusicAdapter(emptyList()) { filePath ->
             val selectedIndex = viewModel.musicFiles.value?.indexOfFirst { it.filePath == filePath } ?: 0
-            if (currentSongIndex == selectedIndex) {
+            if (viewModel.currentSongIndex.value == selectedIndex) {
                 // 当前点击的歌曲已经在播放，进入详情页
                 val intent = Intent(this, MusicDetailActivity::class.java)
                 val filePaths = viewModel.musicFiles.value?.map { it.filePath }?.toTypedArray()
                 intent.putExtra("musicFiles", filePaths)
-                intent.putExtra("currentSongIndex", currentSongIndex)
+                intent.putExtra("currentSongIndex", viewModel.getCurrentSongIndex())
                 startActivity(intent)
             } else {
                 // 播放新的歌曲
-                currentSongIndex = selectedIndex
+                viewModel.setCurrentSongIndex(selectedIndex)
                 playMusic(filePath)
             }
         }
@@ -116,20 +110,33 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.musicFiles.observe(this, Observer { musicFiles ->
             adapter.updateMusicList(musicFiles)
-            if (currentSongIndex >= 0 && currentSongIndex < musicFiles.size) {
+            val currentSongIndex = viewModel.getCurrentSongIndex() ?: -1
+            if ( currentSongIndex >= 0 && currentSongIndex < musicFiles.size) {
                 updateBottomControlBar(musicFiles[currentSongIndex])
             } else {
                 updateBottomControlBar(null)
             }
         })
 
+        viewModel.currentSongIndex.observe(this, Observer { index ->
+            // 当索引变化时，更新底部控制栏
+            Log.d("Main", index.toString())
+            val musicFiles = viewModel.musicFiles.value
+            if (musicFiles != null && index >= 0 && index < musicFiles.size) {
+                updateBottomControlBar(musicFiles[index])
+            } else {
+                updateBottomControlBar(null)
+            }
+        })
+
+
         playPauseButton.setOnClickListener {
             if (isBound) {
                 if (musicService.isPlaying()) {
-                    musicService.pauseMusic()
+                    pauseMusic()
                     playPauseButton.setImageResource(R.drawable.ic_play)
                 } else {
-                    musicService.resumeMusic()
+                    resumeMusic()
                     playPauseButton.setImageResource(R.drawable.ic_pause)
                 }
             }
@@ -146,7 +153,8 @@ class MainActivity : AppCompatActivity() {
     private fun playMusic(filePath: String) {
         if (isBound) {
             musicService.playMusic(filePath)
-            viewModel.musicFiles.value?.get(currentSongIndex)?.let { updateBottomControlBar(it) }
+//            viewModel.musicFiles.value?.get(currentSongIndex)?.let { updateBottomControlBar(it) }
+            viewModel.getCurMusic()?.let { updateBottomControlBar(it) }
             playPauseButton.setImageResource(R.drawable.ic_pause)
             updateControlButtons(true)
         }
@@ -167,24 +175,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun playPreviousSong() {
-        val musicFiles = viewModel.musicFiles.value ?: return
-        if (musicFiles.isNotEmpty()) {
-            currentSongIndex = if (currentSongIndex > 0) currentSongIndex - 1 else musicFiles.size - 1
-            val prevFilePath = musicFiles[currentSongIndex].filePath
-            playMusic(prevFilePath)
+        if (isBound) {
+            musicService.playPreviousSong()
+            val size = viewModel.getSize()
+            if(size != 0){
+                val currentSongIndex = viewModel.getCurrentSongIndex()
+                val index = if (currentSongIndex!! > 0) currentSongIndex - 1 else size - 1
+                viewModel.setCurrentSongIndex(index)
+            }
         }
     }
 
     private fun playNextSong() {
-        val musicFiles = viewModel.musicFiles.value ?: return
-        if (musicFiles.isNotEmpty()) {
-            currentSongIndex = (currentSongIndex + 1) % musicFiles.size
-            val nextFilePath = musicFiles[currentSongIndex].filePath
-            playMusic(nextFilePath)
+        if (isBound) {
+            val size = viewModel.getSize()
+            if(size != 0){
+                musicService.playNextSong()
+                val currentSongIndex = viewModel.getCurrentSongIndex() ?: 0
+                val index = (currentSongIndex + 1) % size
+                viewModel.setCurrentSongIndex(index)
+            }
         }
     }
 
-    private fun updateBottomControlBar(music: Music?) {
+    private fun updateBottomControlBar(music: MusicData?) {
+        Log.d("Main","update buttom")
         if (music != null) {
             songTitle.text = music.title
             songArtist.text = music.artist
