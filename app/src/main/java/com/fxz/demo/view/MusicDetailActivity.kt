@@ -33,6 +33,7 @@ class MusicDetailActivity : AppCompatActivity() {
     private lateinit var currentTime: TextView
     private lateinit var totalTime: TextView
 
+    private var isSeekbarDragging = false
     private var broadcastIsBound = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +66,28 @@ class MusicDetailActivity : AppCompatActivity() {
 
         prevButton.setOnClickListener { playPreviousSong() }
         nextButton.setOnClickListener { playNextSong() }
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    // 用户拖动时，实时更新 currentTime
+                    currentTime.text = progressFormat(progress)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                // 用户开始拖动时可以执行的操作
+                isSeekbarDragging = true
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                isSeekbarDragging = false
+                // 用户停止拖动时，更新播放进度
+                val newPosition = seekBar.progress
+                viewModel.setNewProgress(newPosition)
+            }
+        })
+
+
         updateMusicDetail(viewModel.getCurMusic())
         registerReceiver()
     }
@@ -79,7 +102,7 @@ class MusicDetailActivity : AppCompatActivity() {
     }
 
     fun registerReceiver() {
-        if(broadcastIsBound == false){
+        if(!broadcastIsBound){
             val filter = IntentFilter(ACTION_PLAY_NEXT_SONG)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 this.registerReceiver(playNextSongReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
@@ -125,8 +148,11 @@ class MusicDetailActivity : AppCompatActivity() {
             override fun run() {
                 if (isPlaying()) {
                     val process = getCurProgress()?.toInt() ?: 0
-                    currentTime.text = progressFormat(process)
-                    seekBar.progress = process
+                    if(!isSeekbarDragging){
+                        currentTime.text = progressFormat(process)
+                        seekBar.progress = process
+                    }
+
                 }
                 handler.postDelayed(this, 1000)
             }

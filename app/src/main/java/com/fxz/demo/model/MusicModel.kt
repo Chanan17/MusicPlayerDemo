@@ -179,5 +179,9 @@ object MusicModel {
 
     fun getCurProgress() = musicService?.getCurProgress()
 
+    fun setNewProgress(newPosition: Int) {
+        musicService?.setNewProgress(newPosition)
+    }
+
 
 }

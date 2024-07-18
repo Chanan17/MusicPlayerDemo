@@ -62,4 +62,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getCurProgress() = model.getCurProgress()
 
+    fun setNewProgress(newPosition: Int) {
+        model.setNewProgress(newPosition)
+    }
+
 }

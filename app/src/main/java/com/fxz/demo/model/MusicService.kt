@@ -97,4 +97,8 @@ class MusicService : Service() {
     fun getCurProgress():Int {
         return mediaPlayer?.currentPosition ?: 0
     }
+
+    fun setNewProgress(newPosition: Int) {
+        mediaPlayer?.seekTo(newPosition)
+    }
 }
