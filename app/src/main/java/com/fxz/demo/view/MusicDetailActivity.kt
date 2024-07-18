@@ -19,6 +19,7 @@ import androidx.lifecycle.Observer
 import com.fxz.demo.R
 import com.fxz.demo.model.MusicData
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
+import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
 import com.fxz.demo.viewmodel.MusicViewModel
 
 class MusicDetailActivity : AppCompatActivity() {
@@ -97,6 +98,8 @@ class MusicDetailActivity : AppCompatActivity() {
             Log.d("MusicModel", "Broadcast received")
             if (intent?.action == ACTION_PLAY_NEXT_SONG) {
                 updateMusicDetail(viewModel.getCurMusic())
+            }else if (intent?.action == ACTION_PLAY_PREV_SONG) {
+                updateMusicDetail(viewModel.getCurMusic())
             }
         }
     }
@@ -146,13 +149,10 @@ class MusicDetailActivity : AppCompatActivity() {
     private fun updateSeekBar() {
         handler.postDelayed(object : Runnable {
             override fun run() {
-                if (isPlaying()) {
+                if (isPlaying() && !isSeekbarDragging) {
                     val process = getCurProgress()?.toInt() ?: 0
-                    if(!isSeekbarDragging){
-                        currentTime.text = progressFormat(process)
-                        seekBar.progress = process
-                    }
-
+                    currentTime.text = progressFormat(process)
+                    seekBar.progress = process
                 }
                 handler.postDelayed(this, 1000)
             }

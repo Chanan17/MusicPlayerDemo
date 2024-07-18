@@ -5,7 +5,10 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 添加前台服务权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -26,7 +29,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.MusicDetailActivity"/>
-        <service android:name=".model.MusicService" />
+        <service
+            android:name=".model.MusicService"
+            android:foregroundServiceType="mediaPlayback"/>
 
     </application>
 

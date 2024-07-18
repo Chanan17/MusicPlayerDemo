@@ -2,20 +2,18 @@ package com.fxz.demo.viewmodel
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.fxz.demo.model.MusicData
 import com.fxz.demo.model.MusicModel
-import com.fxz.demo.view.MainActivity
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     private val model: MusicModel = MusicModel
 
-    val musicFiles: LiveData<List<MusicData>> = model.musicFiles
+    val musicFiles = model.musicList
     val currentSongIndex = model.currentSongIndex
+    val serviceBound = model.serviceBound
 
     fun isPlaying() = model.isPlaying()
 
@@ -64,6 +62,18 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setNewProgress(newPosition: Int) {
         model.setNewProgress(newPosition)
+    }
+
+    fun createAndShowNotification() {
+        model.createAndShowNotification()
+    }
+
+    fun updateNotification() {
+        model.updateNotification()
+    }
+
+    fun updateMusicList(content: String) {
+        model.updateMusicList(content)
     }
 
 }

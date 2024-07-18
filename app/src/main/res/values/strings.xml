@@ -3,4 +3,7 @@
     <string name="prev">上一首</string>
     <string name="next">下一首</string>
     <string name="play_pause">暂停</string>
+    <string name="search_hint">搜索本地音乐</string>
+    <string name="history_play">历史播放</string>
+    <string name="search">搜索</string>
 </resources>

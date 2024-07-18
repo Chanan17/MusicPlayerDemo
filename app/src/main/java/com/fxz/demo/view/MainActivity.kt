@@ -8,6 +8,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fxz.demo.viewmodel.MusicViewModel
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,15 +18,23 @@ import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.os.Build
+import android.text.Editable
 import android.util.Log
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.ServiceCompat.startForeground
 import androidx.lifecycle.Observer
 import com.fxz.demo.R
 import com.fxz.demo.model.MusicData
 import com.fxz.demo.databinding.ActivityMainBinding
+import com.fxz.demo.model.MusicModel.serviceBound
+import com.fxz.demo.model.MusicService
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
 import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
 
@@ -37,6 +48,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var songTitle: TextView
     private lateinit var songArtist: TextView
     private lateinit var albumCover: ImageView
+    private lateinit var searchContent: EditText
+    private lateinit var searchButton: ImageButton
+    private lateinit var historyButton: ImageButton
 
     private val REQUEST_MEDIA_AUDIO = 1
 
@@ -48,11 +62,16 @@ class MainActivity : AppCompatActivity() {
             if (intent?.action == ACTION_PLAY_NEXT_SONG) {
                 playNextSong()
                 updateBottomControlBar(viewModel.getCurMusic())
+                updateNotification()
             } else if (intent?.action == ACTION_PLAY_PREV_SONG) {
                 playPreviousSong()
                 updateBottomControlBar(viewModel.getCurMusic())
             }
         }
+    }
+
+    private fun updateNotification() {
+        viewModel.updateNotification()
     }
 
     fun registerReceiver() {
@@ -69,6 +88,11 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun createAndShowNotification() {
+        Log.d("main","create and show notification")
+        viewModel.createAndShowNotification()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -81,6 +105,8 @@ class MainActivity : AppCompatActivity() {
         songTitle = findViewById(R.id.song_title)
         songArtist = findViewById(R.id.song_artist)
         albumCover = findViewById(R.id.album_cover)
+        searchContent = findViewById(R.id.search_input)
+        searchButton = findViewById(R.id.search_button)
 
         // 禁用按钮
         updateControlButtons(false)
@@ -145,6 +171,11 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        viewModel.serviceBound.observe(this) { serviceBound ->
+            if (serviceBound == true) {
+                createAndShowNotification()
+            }
+        }
 
         playPauseButton.setOnClickListener {
             if (viewModel.isPlaying()) {
@@ -156,12 +187,32 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        searchButton.setOnClickListener {
+            val content = searchContent.text.toString()
+            updateMusicList(content)
+        }
+
         prevButton.setOnClickListener { playPreviousSong() }
         nextButton.setOnClickListener { playNextSong() }
 
         viewModel.bindService(this@MainActivity)
         registerReceiver()
+
     }
+
+    private fun updateMusicList(content: String) {
+        viewModel.updateMusicList(content)
+    }
+//    private fun isNotificationEnabled(): Boolean {
+//        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            val channel = notificationManager.getNotificationChannel("music_player_channel")
+//            if (channel?.importance == NotificationManager.IMPORTANCE_NONE) {
+//                return false
+//            }
+//        }
+//        return NotificationManagerCompat.from(this).areNotificationsEnabled()
+//    }
 
     private fun playMusic(index: Int) {
         viewModel.playMusic(index)

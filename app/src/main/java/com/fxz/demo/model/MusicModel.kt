@@ -4,23 +4,25 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-import android.os.Build
 import android.os.Environment
 import android.os.IBinder
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import android.widget.RemoteViews
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
+import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
 import java.io.File
 
 object MusicModel {
 
-    val musicFiles = MutableLiveData<List<MusicData>>()
+    private lateinit var remoteViews: RemoteViews
+
+    private val originalMusicList = mutableListOf<MusicData>()
+    val musicList = MutableLiveData<List<MusicData>>()
 
     private val _currentSongIndex = MutableLiveData<Int>()
     var currentSongIndex: MutableLiveData<Int>
@@ -31,24 +33,23 @@ object MusicModel {
 
     private var size: Int = 0
 
-
-
     private var musicService: MusicService? = null
-    private var isBound = false
+
+    private val _serviceBound = MutableLiveData<Boolean>()
+    val serviceBound: LiveData<Boolean> get() = _serviceBound
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MusicService.LocalBinder
             musicService = binder.getService()
-            isBound = true
+            _serviceBound.postValue(true)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            isBound = false
+            _serviceBound.postValue(false)
         }
     }
-
-
+    
 
     fun bindService(context: Context) {
         val intent = Intent(context, MusicService::class.java)
@@ -56,11 +57,28 @@ object MusicModel {
     }
 
     fun unbindService(context: Context) {
-        if (isBound) {
+        if (_serviceBound.value == true) {
             context.unbindService(serviceConnection)
-            isBound = false
+            _serviceBound.postValue(false)
         }
     }
+
+    private var broadcastIsBound = false
+
+    private val playNextSongReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d("MusicModel", "Broadcast received")
+            if (intent?.action == ACTION_PLAY_NEXT_SONG || intent?.action == ACTION_PLAY_PREV_SONG) {
+                playNextSong()
+                updateNotification()
+            }
+        }
+    }
+
+    fun updateNotification() {
+        getCurMusic()?.let { musicService?.updateNotification(it) }
+    }
+
 
     fun loadMusicFiles() {
         val musicList = mutableListOf<MusicData>()
@@ -69,14 +87,14 @@ object MusicModel {
         Log.d("MusicModel", "MusicData directory: ${musicDir.absolutePath}")
 
         if (musicDir.exists() && musicDir.isDirectory) {
-            traverseDirectory(musicDir, musicList)
+            traverseDirectory(musicDir, originalMusicList)
         } else {
             Log.d("MusicModel", "MusicData directory does not exist or is not a directory.")
         }
 
-        Log.d("MusicModel", "Total music files found: ${musicList.size}")
-        size = musicList.size
-        musicFiles.postValue(musicList)
+        Log.d("MusicModel", "Total music files found: ${originalMusicList.size}")
+        size = originalMusicList.size
+        this.musicList.postValue(originalMusicList)
 //        listSize = musicList.size
     }
 
@@ -124,7 +142,7 @@ object MusicModel {
     }
 
     fun playMusic(index: Int) {
-        val musicList = musicFiles.value
+        val musicList = musicList.value
         if (musicList != null && index in musicList.indices) {
             val filePath = musicList[index].filePath
             musicService?.playMusic(filePath)
@@ -135,7 +153,7 @@ object MusicModel {
         Log.d("model","prevsong")
         val currentIndex = _currentSongIndex.value ?: 0
 
-        val size = musicFiles.value?.size ?: 0
+        val size = musicList.value?.size ?: 0
         if (size > 0) {
             val prevIndex = if (currentIndex!! > 0) currentIndex - 1 else size - 1
             setCurrentSongIndex(prevIndex)
@@ -146,7 +164,7 @@ object MusicModel {
     fun playNextSong() {
         Log.d("model","nextsong")
         val currentIndex = _currentSongIndex.value ?: 0
-        val size = musicFiles.value?.size ?: 0
+        val size = musicList.value?.size ?: 0
         if (size > 0) {
             val nextIndex = (currentIndex + 1) % size
             setCurrentSongIndex(nextIndex)
@@ -171,7 +189,7 @@ object MusicModel {
     fun getCurMusic(): MusicData? {
         val index = _currentSongIndex.value
         return if (index != null) {
-            musicFiles.value?.getOrNull(index)
+            musicList.value?.getOrNull(index)
         } else {
             null
         }
@@ -181,6 +199,17 @@ object MusicModel {
 
     fun setNewProgress(newPosition: Int) {
         musicService?.setNewProgress(newPosition)
+    }
+
+    fun createAndShowNotification() {
+        musicService?.createAndShowNotification()
+    }
+
+    fun updateMusicList(content: String) {
+        val searchResults = originalMusicList.filter {
+            it.title.contains(content, ignoreCase = true) || it.artist.contains(content, ignoreCase = true)
+        }
+        musicList.postValue(searchResults)
     }
 
 
