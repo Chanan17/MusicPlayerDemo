@@ -160,26 +160,15 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
 
-        viewModel.musicFiles.observe(this, Observer { musicFiles ->
+        viewModel.searchMusicFiles.observe(this, Observer { musicFiles ->
             adapter.updateMusicList(musicFiles)
-            val currentSongIndex = viewModel.getCurrentSongIndex() ?: -1
-            if ( currentSongIndex >= 0 && currentSongIndex < musicFiles.size) {
-                updateBottomControlBar(musicFiles[currentSongIndex])
-            } else {
-                updateBottomControlBar(null)
-            }
-        })
-
-//        viewModel.currentSongIndex.observe(this, Observer { index ->
-//            // 当索引变化时，更新底部控制栏
-//            Log.d("Main", index.toString())
-//            val musicFiles = viewModel.musicFiles.value
-//            if (musicFiles != null && index >= 0 && index < musicFiles.size) {
-//                updateBottomControlBar(musicFiles[index])
+//            val currentSongIndex = viewModel.getCurrentSongIndex() ?: -1
+//            if ( currentSongIndex >= 0 && currentSongIndex < musicFiles.size) {
+//                updateBottomControlBar(musicFiles[currentSongIndex])
 //            } else {
 //                updateBottomControlBar(null)
 //            }
-//        })
+        })
 
         viewModel.serviceBound.observe(this) { serviceBound ->
             if (serviceBound == true) {

@@ -27,10 +27,9 @@ object MusicModel {
         dbHelper = MusicDatabaseHelper(context)
     }
 
-    private lateinit var remoteViews: RemoteViews
-
     private val originalMusicList = mutableListOf<MusicData>()
     val musicList = MutableLiveData<List<MusicData>>()
+    val searchMusicList = MutableLiveData<List<MusicData>>()
 
     private val _currentSongIndex = MutableLiveData<Int>()
     var currentSongIndex: MutableLiveData<Int>
@@ -103,6 +102,7 @@ object MusicModel {
         Log.d("MusicModel", "Total music files found: ${originalMusicList.size}")
         size = originalMusicList.size
         this.musicList.postValue(originalMusicList)
+        this.searchMusicList.postValue(originalMusicList)
 //        listSize = musicList.size
     }
 
@@ -282,7 +282,7 @@ object MusicModel {
         val searchResults = originalMusicList.filter {
             it.title.contains(content, ignoreCase = true) || it.artist.contains(content, ignoreCase = true)
         }
-        musicList.postValue(searchResults)
+        searchMusicList.postValue(searchResults)
     }
 
 

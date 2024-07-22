@@ -53,16 +53,27 @@ class MusicDetailActivity : AppCompatActivity() {
         seekBar = findViewById(R.id.seek_bar)
         currentTime = findViewById(R.id.current_time)
         totalTime = findViewById(R.id.total_time)
-
+        
         playPauseButton.setOnClickListener {
             if (viewModel.isPlaying()) {
-                pauseMusic()
-                playPauseButton.setImageResource(R.drawable.ic_play)
+                val intent = Intent(ACTION_PAUSE_SONG)
+                intent.setPackage(PACKAGE_NAME)
+                sendBroadcast(intent)
             } else {
-                resumeMusic()
-                playPauseButton.setImageResource(R.drawable.ic_pause)
+                val intent = Intent(ACTION_RESUME_SONG)
+                intent.setPackage(PACKAGE_NAME)
+                sendBroadcast(intent)
             }
         }
+//        playPauseButton.setOnClickListener {
+//            if (viewModel.isPlaying()) {
+//                pauseMusic()
+//                playPauseButton.setImageResource(R.drawable.ic_play)
+//            } else {
+//                resumeMusic()
+//                playPauseButton.setImageResource(R.drawable.ic_pause)
+//            }
+//        }
 
         viewModel.currentSongIndex.observe(this, Observer {
             updateMusicDetail(viewModel.getCurMusic())

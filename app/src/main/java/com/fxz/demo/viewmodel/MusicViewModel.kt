@@ -13,6 +13,7 @@ class MusicViewModel: ViewModel() {
     private val model: MusicModel = MusicModel
 
     val musicFiles = model.musicList
+    val searchMusicFiles = model.searchMusicList
     val currentSongIndex = model.currentSongIndex
     val serviceBound = model.serviceBound
 
