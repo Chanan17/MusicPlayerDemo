@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fxz.demo.R
-import com.fxz.demo.databinding.HistoryFragmentBinding
+import com.fxz.demo.databinding.FragmentHistoryBinding
 import com.fxz.demo.model.MusicModel
 import com.fxz.demo.model.MusicModel.playMusic
 import com.fxz.demo.utils.ACTION_PLAY_NEW_SONG
@@ -28,21 +28,18 @@ class HistoryFragment : Fragment() {
     private val viewModel = MusicViewModel()
 //    private val viewModel = ViewModelProvider.
 
-    private var _binding: HistoryFragmentBinding? = null
+    private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = HistoryFragmentBinding.inflate(inflater, container, false)
+
+        _binding = FragmentHistoryBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        binding.backButton.setOnClickListener {
-            val drawerLayout = activity?.findViewById<DrawerLayout>(R.id.main_layout)
-            drawerLayout?.closeDrawer(GravityCompat.START)
-        }
-
+        //历史播放列表
         binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
         adapter = MusicHistoryAdapter(MusicModel.getMusicHistory()) { filePath ->
             Log.d("history",filePath)
@@ -55,12 +52,18 @@ class HistoryFragment : Fragment() {
             requireContext().sendBroadcast(intent)
             Log.d("history","send new")
         }
+        binding.historyRecyclerView.adapter = adapter
 
+        //清空按钮
         binding.clearButton.setOnClickListener {
             viewModel.clearMusicHistory()
             adapter.updateData(emptyList())
         }
-        binding.historyRecyclerView.adapter = adapter
+        //返回按钮
+        binding.backButton.setOnClickListener {
+            val drawerLayout = activity?.findViewById<DrawerLayout>(R.id.main_layout)
+            drawerLayout?.closeDrawer(GravityCompat.START)
+        }
 
         return view
     }

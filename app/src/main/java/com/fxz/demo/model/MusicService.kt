@@ -7,9 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -26,7 +24,7 @@ import java.io.IOException
 class MusicService : Service() {
 
     private lateinit var notification: Notification
-    private var remoteViews = RemoteViews("com.fxz.demo", R.layout.notification)
+    private var remoteViews = RemoteViews("com.fxz.demo", R.layout.layout_notification)
     private var mediaPlayer: MediaPlayer? = null
     private var currentSongPath: String? = null
     private val binder = LocalBinder()

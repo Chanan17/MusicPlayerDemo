@@ -6,6 +6,6 @@ data class MusicData(
     val title: String,
     val artist: String,
     val filePath: String,
-    var albumArt: Bitmap? = null,
-    val duration: Int
+    var albumArt: Bitmap? = null,   //封面
+    val duration: Int               //播放时长
 )

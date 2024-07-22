@@ -38,8 +38,10 @@ import com.fxz.demo.utils.PACKAGE_NAME
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MusicViewModel by viewModels()
+
     private lateinit var adapter: MusicAdapter
     private lateinit var binding: ActivityMainBinding
+
     private lateinit var playPauseButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var nextButton: ImageButton
@@ -164,8 +166,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = adapter
+        binding.mainRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.mainRecyclerView.adapter = adapter
 
         viewModel.searchMusicFiles.observe(this, Observer { musicFiles ->
             adapter.updateMusicList(musicFiles)
