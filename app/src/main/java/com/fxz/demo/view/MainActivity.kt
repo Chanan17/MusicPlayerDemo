@@ -28,6 +28,7 @@ import com.fxz.demo.R
 import com.fxz.demo.model.MusicData
 import com.fxz.demo.databinding.ActivityMainBinding
 import com.fxz.demo.utils.ACTION_PAUSE_SONG
+import com.fxz.demo.utils.ACTION_PLAY_NEW_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
 import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
 import com.fxz.demo.utils.ACTION_RESUME_SONG
@@ -69,6 +70,9 @@ class MainActivity : AppCompatActivity() {
             } else if (intent?.action == ACTION_PAUSE_SONG) {
                 pauseMusic()
                 Log.d("main","pause")
+            } else if (intent?.action == ACTION_PLAY_NEW_SONG) {
+                updateBottomControlBar(viewModel.getCurMusic())
+                Log.d("main","play new")
             }
         }
     }
@@ -84,6 +88,7 @@ class MainActivity : AppCompatActivity() {
                 addAction(ACTION_PLAY_PREV_SONG)
                 addAction(ACTION_PAUSE_SONG)
                 addAction(ACTION_RESUME_SONG)
+                addAction(ACTION_PLAY_NEW_SONG)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 this.registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED)

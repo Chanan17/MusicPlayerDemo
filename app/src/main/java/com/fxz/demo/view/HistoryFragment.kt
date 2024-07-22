@@ -1,6 +1,8 @@
 package com.fxz.demo.view
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -15,9 +17,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.fxz.demo.R
 import com.fxz.demo.databinding.HistoryFragmentBinding
 import com.fxz.demo.model.MusicModel
+import com.fxz.demo.model.MusicModel.playMusic
+import com.fxz.demo.utils.ACTION_PLAY_NEW_SONG
+import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
+import com.fxz.demo.utils.PACKAGE_NAME
 import com.fxz.demo.viewmodel.MusicViewModel
 
 class HistoryFragment : Fragment() {
+    private lateinit var adapter: MusicHistoryAdapter
     private val viewModel = MusicViewModel()
 //    private val viewModel = ViewModelProvider.
 
@@ -37,8 +44,16 @@ class HistoryFragment : Fragment() {
         }
 
         binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
-        val adapter = MusicHistoryAdapter(MusicModel.getMusicHistory()) { filePath ->
-            // Handle click event if needed
+        adapter = MusicHistoryAdapter(MusicModel.getMusicHistory()) { filePath ->
+            Log.d("history",filePath)
+            val selectedIndex = viewModel.musicFiles.value?.indexOfFirst { it.filePath == filePath } ?: 0
+            viewModel.setCurrentSongIndex(selectedIndex)
+            viewModel.playMusic(selectedIndex)
+
+            val intent = Intent(ACTION_PLAY_NEW_SONG)
+            intent.setPackage(PACKAGE_NAME)
+            requireContext().sendBroadcast(intent)
+            Log.d("history","send new")
         }
 
         binding.clearButton.setOnClickListener {
