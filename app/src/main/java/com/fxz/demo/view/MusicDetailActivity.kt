@@ -18,8 +18,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.fxz.demo.R
 import com.fxz.demo.model.MusicData
+import com.fxz.demo.utils.ACTION_PAUSE_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
 import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
+import com.fxz.demo.utils.ACTION_RESUME_SONG
+import com.fxz.demo.utils.PACKAGE_NAME
 import com.fxz.demo.viewmodel.MusicViewModel
 
 class MusicDetailActivity : AppCompatActivity() {
@@ -65,8 +68,16 @@ class MusicDetailActivity : AppCompatActivity() {
             updateMusicDetail(viewModel.getCurMusic())
         })
 
-        prevButton.setOnClickListener { playPreviousSong() }
-        nextButton.setOnClickListener { playNextSong() }
+        prevButton.setOnClickListener {
+            val intent = Intent(ACTION_PLAY_PREV_SONG)
+            intent.setPackage(PACKAGE_NAME)
+            sendBroadcast(intent)
+        }
+        nextButton.setOnClickListener {
+            val intent = Intent(ACTION_PLAY_NEXT_SONG)
+            intent.setPackage(PACKAGE_NAME)
+            sendBroadcast(intent)
+        }
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -93,26 +104,33 @@ class MusicDetailActivity : AppCompatActivity() {
         registerReceiver()
     }
 
-    private val playNextSongReceiver = object : BroadcastReceiver() {
+    private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d("MusicModel", "Broadcast received")
-            if (intent?.action == ACTION_PLAY_NEXT_SONG) {
+            Log.d("detail", "Broadcast received")
+            if (intent?.action == ACTION_PLAY_NEXT_SONG || intent?.action == ACTION_PLAY_PREV_SONG) {
                 updateMusicDetail(viewModel.getCurMusic())
-            }else if (intent?.action == ACTION_PLAY_PREV_SONG) {
-                updateMusicDetail(viewModel.getCurMusic())
+            }else if (intent?.action == ACTION_PAUSE_SONG) {
+                playPauseButton.setImageResource(R.drawable.ic_play)
+            }else if (intent?.action == ACTION_RESUME_SONG) {
+                playPauseButton.setImageResource(R.drawable.ic_pause)
             }
         }
     }
 
     fun registerReceiver() {
         if(!broadcastIsBound){
-            val filter = IntentFilter(ACTION_PLAY_NEXT_SONG)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                this.registerReceiver(playNextSongReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-            } else {
-                this.registerReceiver(playNextSongReceiver, filter)
+            val filter = IntentFilter().apply {
+                addAction(ACTION_PLAY_PREV_SONG)
+                addAction(ACTION_PLAY_NEXT_SONG)
+                addAction(ACTION_RESUME_SONG)
+                addAction(ACTION_PAUSE_SONG)
             }
-            Log.d("main","register")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                this.registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                this.registerReceiver(broadcastReceiver, filter)
+            }
+            Log.d("detail","register")
             broadcastIsBound = true
         }
 

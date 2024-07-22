@@ -155,6 +155,7 @@ object MusicModel {
             val filePath = musicList[index].filePath
             musicService?.playMusic(filePath)
             saveMusicToHistory(musicList[index])
+            updateNotification()
         }
     }
 

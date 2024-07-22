@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -31,6 +32,8 @@ class MusicService : Service() {
     private val CHANNEL_ID = "mydemo"
     private val NOTIFICATION_ID = 1
 
+    private val playUri = Uri.parse("android.resource://com.fxz.demo/${R.drawable.ic_play}")
+    private val pauseUri = Uri.parse("android.resource://com.fxz.demo/${R.drawable.ic_pause}")
 //    private var musicFilePaths: List<String> = emptyList()
 //    private var currentSongIndex: Int = -1
 
@@ -50,18 +53,25 @@ class MusicService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "ACTION_PREV" -> {
+                Log.d("service notification","prev")
                 val intent = Intent(ACTION_PLAY_PREV_SONG)
                 intent.setPackage("com.fxz.demo")
                 sendBroadcast(intent)
-
             }
             "ACTION_PLAY_PAUSE" -> {
-                if(isPlaying()) {
-                    mediaPlayer?.pause()
-                    remoteViews.setImageViewResource(R.id.play_pause_button, R.drawable.ic_play)
+                if(!isPlaying()) {
+                    Log.d("service","notification playpause receive isplaying")
+                    val intent = Intent(ACTION_RESUME_SONG)
+                    intent.setPackage("com.fxz.demo")
+                    sendBroadcast(intent)
+                    remoteViews.setImageViewUri(R.id.notification_play_pause_button, playUri)
                 }else {
-                    mediaPlayer?.start()
-                    remoteViews.setImageViewResource(R.id.play_pause_button, R.drawable.ic_pause)
+                    Log.d("service","notification playpause receive noplaying")
+                    val intent = Intent(ACTION_PAUSE_SONG)
+                    intent.setPackage("com.fxz.demo")
+                    sendBroadcast(intent)
+                    remoteViews.setImageViewUri(R.id.notification_play_pause_button, pauseUri)
+//                    remoteViews.setImageViewResource(R.id.play_pause_button, R.drawable.ic_pause)
                 }
             }
             "ACTION_NEXT" -> {
@@ -105,27 +115,28 @@ class MusicService : Service() {
     }
 
     private fun showNotification() {
-
         // 设置 RemoteViews 内容
-//        remoteViews.setImageViewResource(R.id.album_cover, R.drawable.ic_album_placeholder)
+//        remoteViews.setTextViewText(R.id.tv_notification_song_title,"!111")
+//        remoteViews.setImageViewUri(R.id.album_cover,playUri)
+//        remoteViews.setImageViewResource(R.id.album_cover, R.drawable.ic_play)
         // 设置按钮点击事件
         val prevIntent = Intent(this, MusicService::class.java).apply {
             action = "ACTION_PREV"
         }
         val prevPendingIntent = PendingIntent.getService(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        remoteViews.setOnClickPendingIntent(R.id.prev_button, prevPendingIntent)
+        remoteViews.setOnClickPendingIntent(R.id.notification_prev_button, prevPendingIntent)
 
         val playPauseIntent = Intent(this, MusicService::class.java).apply {
             action = "ACTION_PLAY_PAUSE"
         }
         val playPausePendingIntent = PendingIntent.getService(this, 0, playPauseIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        remoteViews.setOnClickPendingIntent(R.id.play_pause_button, playPausePendingIntent)
+        remoteViews.setOnClickPendingIntent(R.id.notification_play_pause_button, playPausePendingIntent)
 
         val nextIntent = Intent(this, MusicService::class.java).apply {
             action = "ACTION_NEXT"
         }
         val nextPendingIntent = PendingIntent.getService(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        remoteViews.setOnClickPendingIntent(R.id.next_button, nextPendingIntent)
+        remoteViews.setOnClickPendingIntent(R.id.notification_next_button, nextPendingIntent)
 
         // 创建通知
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -137,7 +148,6 @@ class MusicService : Service() {
 //                .setCustomContentView(remoteViews)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
-
         startForeground(NOTIFICATION_ID, notification)
         Log.d("service","show notification")
     }
@@ -171,17 +181,17 @@ class MusicService : Service() {
 
     fun pauseMusic() {
         Log.d("MusicService","pauseMusic()")
-        val intent = Intent(ACTION_PAUSE_SONG)
-        intent.setPackage("com.fxz.demo")
-        sendBroadcast(intent)
+//        val intent = Intent(ACTION_PAUSE_SONG)
+//        intent.setPackage("com.fxz.demo")
+//        sendBroadcast(intent)
         mediaPlayer?.pause()
     }
 
     fun resumeMusic() {
         Log.d("MusicService","resumeMusic()")
-        val intent = Intent(ACTION_RESUME_SONG)
-        intent.setPackage("com.fxz.demo")
-        sendBroadcast(intent)
+//        val intent = Intent(ACTION_RESUME_SONG)
+//        intent.setPackage("com.fxz.demo")
+//        sendBroadcast(intent)
         mediaPlayer?.start()
     }
 
@@ -221,12 +231,13 @@ class MusicService : Service() {
     fun createAndShowNotification() {
         Log.d("service","create and show notification")
         createNotificationChannel()
-//        showNotification()
+        showNotification()
     }
 
     fun updateNotification(curMusic: MusicData) {
-        remoteViews.setTextViewText(R.id.song_title, curMusic.title)
-        remoteViews.setTextViewText(R.id.music_artist, curMusic.artist)
+        Log.d("service","update notification ui")
+        remoteViews.setTextViewText(R.id.tv_notification_song_title, "2222")
+        remoteViews.setTextViewText(R.id.tv_notification_song_artist, curMusic.artist)
         if (curMusic.albumArt != null) {
             remoteViews.setImageViewBitmap(R.id.album_cover, curMusic.albumArt)
         } else {
@@ -234,7 +245,9 @@ class MusicService : Service() {
         }
 
         val playPauseIcon = if (isPlaying()) R.drawable.ic_pause else R.drawable.ic_play
-        remoteViews.setImageViewResource(R.id.play_pause_button, playPauseIcon)
+        remoteViews.setImageViewResource(R.id.notification_play_pause_button, playPauseIcon)
+
+
 
     }
 }

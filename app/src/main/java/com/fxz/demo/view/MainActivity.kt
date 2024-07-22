@@ -30,6 +30,7 @@ import com.fxz.demo.utils.ACTION_PAUSE_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
 import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
 import com.fxz.demo.utils.ACTION_RESUME_SONG
+import com.fxz.demo.utils.PACKAGE_NAME
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MusicViewModel by viewModels()
@@ -61,10 +62,10 @@ class MainActivity : AppCompatActivity() {
                 playPreviousSong()
                 updateBottomControlBar(viewModel.getCurMusic())
             } else if (intent?.action == ACTION_RESUME_SONG) {
-                playPauseButton.setImageResource(R.drawable.ic_pause)
+                resumeMusic()
                 Log.d("main","play")
             } else if (intent?.action == ACTION_PAUSE_SONG) {
-                playPauseButton.setImageResource(R.drawable.ic_play)
+                pauseMusic()
                 Log.d("main","pause")
             }
         }
@@ -167,16 +168,16 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.currentSongIndex.observe(this, Observer { index ->
-            // 当索引变化时，更新底部控制栏
-            Log.d("Main", index.toString())
-            val musicFiles = viewModel.musicFiles.value
-            if (musicFiles != null && index >= 0 && index < musicFiles.size) {
-                updateBottomControlBar(musicFiles[index])
-            } else {
-                updateBottomControlBar(null)
-            }
-        })
+//        viewModel.currentSongIndex.observe(this, Observer { index ->
+//            // 当索引变化时，更新底部控制栏
+//            Log.d("Main", index.toString())
+//            val musicFiles = viewModel.musicFiles.value
+//            if (musicFiles != null && index >= 0 && index < musicFiles.size) {
+//                updateBottomControlBar(musicFiles[index])
+//            } else {
+//                updateBottomControlBar(null)
+//            }
+//        })
 
         viewModel.serviceBound.observe(this) { serviceBound ->
             if (serviceBound == true) {
@@ -186,11 +187,13 @@ class MainActivity : AppCompatActivity() {
 
         playPauseButton.setOnClickListener {
             if (viewModel.isPlaying()) {
-                pauseMusic()
-                playPauseButton.setImageResource(R.drawable.ic_play)
+                val intent = Intent(ACTION_PAUSE_SONG)
+                intent.setPackage(PACKAGE_NAME)
+                sendBroadcast(intent)
             } else {
-                resumeMusic()
-                playPauseButton.setImageResource(R.drawable.ic_pause)
+                val intent = Intent(ACTION_RESUME_SONG)
+                intent.setPackage(PACKAGE_NAME)
+                sendBroadcast(intent)
             }
         }
 
@@ -204,8 +207,16 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.history_fragment, HistoryFragment())
                 .commit()
         }
-        prevButton.setOnClickListener { playPreviousSong() }
-        nextButton.setOnClickListener { playNextSong() }
+        prevButton.setOnClickListener {
+            val intent = Intent(ACTION_PLAY_PREV_SONG)
+            intent.setPackage(PACKAGE_NAME)
+            sendBroadcast(intent)
+        }
+        nextButton.setOnClickListener {
+            val intent = Intent(ACTION_PLAY_NEXT_SONG)
+            intent.setPackage(PACKAGE_NAME)
+            sendBroadcast(intent)
+        }
 
         viewModel.bindService(this@MainActivity)
         registerReceiver()
@@ -235,6 +246,7 @@ class MainActivity : AppCompatActivity() {
     private fun playMusic(index: Int) {
         viewModel.playMusic(index)
         updateControlButtons(true)
+        updateBottomControlBar(viewModel.getCurMusic())
         playPauseButton.setImageResource(R.drawable.ic_pause)
     }
 
