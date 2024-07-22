@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="58dp"
     android:orientation="horizontal"
     android:background="@color/cyan"
     android:padding="8dp">
 
     <ImageView
         android:id="@+id/album_cover"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:src="@drawable/ic_album_placeholder" />
 
     <LinearLayout
@@ -21,11 +21,11 @@
         android:layout_marginLeft="8dp">
 
         <TextView
-            android:id="@+id/song_title"
+            android:id="@+id/tv_song_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Song1 Title"
-            android:textSize="16sp"
+            android:text="Song Title"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
@@ -33,18 +33,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Artist"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
+
     </LinearLayout>
+    <ImageView
+        android:id="@+id/prev_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_prev"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp" />
+    <ImageView
+        android:id="@+id/play_pause_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_play"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp" />
 
-
-
-<!--    <ImageButton-->
-<!--        android:id="@+id/play_pause_button"-->
-<!--        android:layout_width="48dp"-->
-<!--        android:layout_height="48dp"-->
-<!--        android:background="?attr/selectableItemBackground"-->
-<!--        android:src="@drawable/ic_play"-->
-<!--        android:contentDescription="@string/play_pause" />-->
+    <ImageView
+        android:id="@+id/next_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_next"
+        android:layout_gravity="center_vertical" />
 
 <!--    <ImageButton-->
 <!--        android:id="@+id/next_button"-->

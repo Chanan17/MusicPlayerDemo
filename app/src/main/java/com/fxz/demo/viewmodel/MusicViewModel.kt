@@ -4,10 +4,11 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import com.fxz.demo.model.MusicData
 import com.fxz.demo.model.MusicModel
 
-class MusicViewModel(application: Application) : AndroidViewModel(application) {
+class MusicViewModel: ViewModel() {
 
     private val model: MusicModel = MusicModel
 
@@ -74,6 +75,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateMusicList(content: String) {
         model.updateMusicList(content)
+    }
+
+    fun initializeDB(context: Context) {
+        model.initializeDB(context)
+    }
+
+    fun clearMusicHistory() {
+        model.clearMusicHistory()
     }
 
 }

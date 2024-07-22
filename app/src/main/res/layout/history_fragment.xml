@@ -8,14 +8,14 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="14dp">
 
         <TextView
             android:id="@+id/history_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="历史播放"
-            android:textSize="24sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:layout_centerVertical="true" />
 

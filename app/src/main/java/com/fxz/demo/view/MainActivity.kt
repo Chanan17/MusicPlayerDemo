@@ -1,5 +1,5 @@
 package com.fxz.demo.view
-
+import androidx.drawerlayout.widget.DrawerLayout
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -8,9 +8,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fxz.demo.viewmodel.MusicViewModel
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -18,25 +15,21 @@ import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.os.Build
-import android.text.Editable
 import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.ServiceCompat.startForeground
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import com.fxz.demo.R
 import com.fxz.demo.model.MusicData
 import com.fxz.demo.databinding.ActivityMainBinding
-import com.fxz.demo.model.MusicModel.serviceBound
-import com.fxz.demo.model.MusicService
+import com.fxz.demo.utils.ACTION_PAUSE_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
 import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
+import com.fxz.demo.utils.ACTION_RESUME_SONG
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MusicViewModel by viewModels()
@@ -51,14 +44,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var searchContent: EditText
     private lateinit var searchButton: ImageButton
     private lateinit var historyButton: ImageButton
+    private lateinit var mainLayout: DrawerLayout
 
     private val REQUEST_MEDIA_AUDIO = 1
 
     private var broadcastIsBound = false
 
-    private val playNextSongReceiver = object : BroadcastReceiver() {
+    private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d("MusicModel", "Broadcast received")
+            Log.d("Main", "Broadcast received")
             if (intent?.action == ACTION_PLAY_NEXT_SONG) {
                 playNextSong()
                 updateBottomControlBar(viewModel.getCurMusic())
@@ -66,6 +60,12 @@ class MainActivity : AppCompatActivity() {
             } else if (intent?.action == ACTION_PLAY_PREV_SONG) {
                 playPreviousSong()
                 updateBottomControlBar(viewModel.getCurMusic())
+            } else if (intent?.action == ACTION_RESUME_SONG) {
+                playPauseButton.setImageResource(R.drawable.ic_pause)
+                Log.d("main","play")
+            } else if (intent?.action == ACTION_PAUSE_SONG) {
+                playPauseButton.setImageResource(R.drawable.ic_play)
+                Log.d("main","pause")
             }
         }
     }
@@ -76,11 +76,16 @@ class MainActivity : AppCompatActivity() {
 
     fun registerReceiver() {
         if(broadcastIsBound == false){
-            val filter = IntentFilter(ACTION_PLAY_NEXT_SONG)
+            val filter = IntentFilter().apply {
+                addAction(ACTION_PLAY_NEXT_SONG)
+                addAction(ACTION_PLAY_PREV_SONG)
+                addAction(ACTION_PAUSE_SONG)
+                addAction(ACTION_RESUME_SONG)
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                this.registerReceiver(playNextSongReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+                this.registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
             } else {
-                this.registerReceiver(playNextSongReceiver, filter)
+                this.registerReceiver(broadcastReceiver, filter)
             }
             Log.d("main","register")
             broadcastIsBound = true
@@ -107,6 +112,8 @@ class MainActivity : AppCompatActivity() {
         albumCover = findViewById(R.id.album_cover)
         searchContent = findViewById(R.id.search_input)
         searchButton = findViewById(R.id.search_button)
+        historyButton = findViewById(R.id.history_button)
+        mainLayout = findViewById(R.id.main_layout)
 
         // 禁用按钮
         updateControlButtons(false)
@@ -191,13 +198,24 @@ class MainActivity : AppCompatActivity() {
             val content = searchContent.text.toString()
             updateMusicList(content)
         }
-
+        historyButton.setOnClickListener{
+            mainLayout.openDrawer(GravityCompat.START)
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.history_fragment, HistoryFragment())
+                .commit()
+        }
         prevButton.setOnClickListener { playPreviousSong() }
         nextButton.setOnClickListener { playNextSong() }
 
         viewModel.bindService(this@MainActivity)
         registerReceiver()
 
+        initializeDB(this)
+
+    }
+
+    private fun initializeDB(context: Context) {
+        viewModel.initializeDB(context)
     }
 
     private fun updateMusicList(content: String) {
@@ -304,9 +322,7 @@ class MainActivity : AppCompatActivity() {
             Log.d("Permission", "READ_MEDIA_AUDIO permission granted")
             viewModel.loadMusicFiles()
         } else {
-            Log.d("Permission", "READ_MEDIA_AUDIO permission denied")
-            // 权限请求被拒绝，可以在这里显示一个提示或者处理权限被拒绝的情况
-        }
+            Log.d("Permission", "READ_MEDIA_AUDIO permission denied") }
     }
 
     private fun isPlaying():Boolean {

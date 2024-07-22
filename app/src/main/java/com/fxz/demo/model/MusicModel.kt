@@ -2,6 +2,7 @@ package com.fxz.demo.model
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
@@ -15,9 +16,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
 import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
+import com.fxz.demo.utils.MusicDatabaseHelper
 import java.io.File
 
 object MusicModel {
+
+    private lateinit var dbHelper: MusicDatabaseHelper
+
+    fun initializeDB(context: Context) {
+        dbHelper = MusicDatabaseHelper(context)
+    }
 
     private lateinit var remoteViews: RemoteViews
 
@@ -146,9 +154,71 @@ object MusicModel {
         if (musicList != null && index in musicList.indices) {
             val filePath = musicList[index].filePath
             musicService?.playMusic(filePath)
+            saveMusicToHistory(musicList[index])
         }
     }
 
+    private fun saveMusicToHistory(musicData: MusicData) {
+        val db = dbHelper.writableDatabase
+        val cursor = db.query(
+            MusicDatabaseHelper.TABLE_NAME,
+            arrayOf(MusicDatabaseHelper.COLUMN_FILE_PATH),
+            "${MusicDatabaseHelper.COLUMN_FILE_PATH} = ?",
+            arrayOf(musicData.filePath),
+            null, null, null
+        )
+
+        if (cursor.moveToFirst()) {
+            // 如果记录存在，更新时间
+            val values = ContentValues().apply {
+                put(MusicDatabaseHelper.COLUMN_TIMESTAMP, System.currentTimeMillis() / 1000)
+            }
+            db.update(
+                MusicDatabaseHelper.TABLE_NAME,
+                values,
+                "${MusicDatabaseHelper.COLUMN_FILE_PATH} = ?",
+                arrayOf(musicData.filePath)
+            )
+        } else {
+            val values = ContentValues().apply {
+                put(MusicDatabaseHelper.COLUMN_TITLE, musicData.title)
+                put(MusicDatabaseHelper.COLUMN_ARTIST, musicData.artist)
+                put(MusicDatabaseHelper.COLUMN_FILE_PATH, musicData.filePath)
+                put(MusicDatabaseHelper.COLUMN_TIMESTAMP, System.currentTimeMillis() / 1000)
+            }
+            db.insert(MusicDatabaseHelper.TABLE_NAME, null, values)
+        }
+        cursor.close()
+    }
+
+    fun getMusicHistory(): List<MusicHistoryData> {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(
+            MusicDatabaseHelper.TABLE_NAME,
+            arrayOf(
+                MusicDatabaseHelper.COLUMN_TITLE,
+                MusicDatabaseHelper.COLUMN_ARTIST,
+                MusicDatabaseHelper.COLUMN_FILE_PATH
+            ),
+            null, null, null, null,
+            "${MusicDatabaseHelper.COLUMN_TIMESTAMP} DESC"
+        )
+        val musicList = mutableListOf<MusicHistoryData>()
+        with(cursor) {
+            while (moveToNext()) {
+                val title = getString(getColumnIndexOrThrow(MusicDatabaseHelper.COLUMN_TITLE))
+                val artist = getString(getColumnIndexOrThrow(MusicDatabaseHelper.COLUMN_ARTIST))
+                val filePath = getString(getColumnIndexOrThrow(MusicDatabaseHelper.COLUMN_FILE_PATH))
+                musicList.add(MusicHistoryData(title, artist, filePath))
+            }
+        }
+        cursor.close()
+        return musicList
+    }
+    fun clearMusicHistory() {
+        val db = dbHelper.writableDatabase
+        db.delete(MusicDatabaseHelper.TABLE_NAME, null, null)
+    }
     fun playPreviousSong() {
         Log.d("model","prevsong")
         val currentIndex = _currentSongIndex.value ?: 0

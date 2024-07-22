@@ -15,8 +15,10 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.fxz.demo.R
+import com.fxz.demo.utils.ACTION_PAUSE_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
 import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
+import com.fxz.demo.utils.ACTION_RESUME_SONG
 import java.io.IOException
 
 class MusicService : Service() {
@@ -26,7 +28,7 @@ class MusicService : Service() {
     private var currentSongPath: String? = null
     private val binder = LocalBinder()
 
-    private val CHANNEL_ID = "music_player_channel"
+    private val CHANNEL_ID = "mydemo"
     private val NOTIFICATION_ID = 1
 
 //    private var musicFilePaths: List<String> = emptyList()
@@ -77,16 +79,28 @@ class MusicService : Service() {
             Log.d("service","create notification")
             val name = "音乐播放器通知"
             val descriptionText = "音乐播放器控制"
-            val importance = NotificationManager.IMPORTANCE_HIGH
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, name, importance)
             notificationManager.createNotificationChannel(channel)
-            remoteViews.setTextViewText(R.id.tv_song_title,"!11111111")
-            val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.small_icon)
-                .setCustomContentView(remoteViews)
-                .build()
-            startForeground(1, notification)
+
+
+//            remoteViews.setTextViewText(R.id.tv_song_title,"!11111111")
+
+
         }
+//        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+////                .setContentTitle("This is content title")
+//            .setSmallIcon(R.drawable.small_icon)
+//            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+//            .setDefaults(0)
+//            .setAutoCancel(true)
+//            .setCustomContentView(remoteViews)
+//
+////                .setCustomContentView(remoteViews)
+//            .setPriority(NotificationCompat.PRIORITY_HIGH)
+//            .build()
+//        startForeground(2, notification)
+//        notificationManager.notify(2,notification)
 
     }
 
@@ -94,9 +108,6 @@ class MusicService : Service() {
 
         // 设置 RemoteViews 内容
 //        remoteViews.setImageViewResource(R.id.album_cover, R.drawable.ic_album_placeholder)
-        remoteViews.setTextViewText(R.id.song_title, "Song Title")
-        remoteViews.setTextViewText(R.id.song_artist, "Artist")
-
         // 设置按钮点击事件
         val prevIntent = Intent(this, MusicService::class.java).apply {
             action = "ACTION_PREV"
@@ -118,10 +129,13 @@ class MusicService : Service() {
 
         // 创建通知
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+//                .setContentTitle("This is content title")
+            .setSmallIcon(R.drawable.small_icon)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(remoteViews)
 
-            .setContent(remoteViews)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCustomBigContentView(remoteViews)
+//                .setCustomContentView(remoteViews)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
         startForeground(NOTIFICATION_ID, notification)
@@ -142,7 +156,7 @@ class MusicService : Service() {
                         val intent = Intent(ACTION_PLAY_NEXT_SONG)
                         intent.setPackage("com.fxz.demo")
                         sendBroadcast(intent)
-                        Log.d("MusicService","broadcastsent")
+                        Log.d("MusicService","auto next broadcastsent")
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
@@ -157,11 +171,17 @@ class MusicService : Service() {
 
     fun pauseMusic() {
         Log.d("MusicService","pauseMusic()")
+        val intent = Intent(ACTION_PAUSE_SONG)
+        intent.setPackage("com.fxz.demo")
+        sendBroadcast(intent)
         mediaPlayer?.pause()
     }
 
     fun resumeMusic() {
         Log.d("MusicService","resumeMusic()")
+        val intent = Intent(ACTION_RESUME_SONG)
+        intent.setPackage("com.fxz.demo")
+        sendBroadcast(intent)
         mediaPlayer?.start()
     }
 
