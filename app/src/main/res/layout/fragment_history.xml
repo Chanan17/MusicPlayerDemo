@@ -11,7 +11,7 @@
         android:layout_marginBottom="14dp">
 
         <TextView
-            android:id="@+id/history_title"
+            android:id="@+id/tv_hist_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="历史播放"
@@ -20,7 +20,7 @@
             android:layout_centerVertical="true" />
 
         <ImageButton
-            android:id="@+id/clear_button"
+            android:id="@+id/imgbtn_hist_clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -31,7 +31,7 @@
             android:background="?attr/selectableItemBackgroundBorderless" />
 
         <ImageButton
-            android:id="@+id/back_button"
+            android:id="@+id/imgbtn_hist_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

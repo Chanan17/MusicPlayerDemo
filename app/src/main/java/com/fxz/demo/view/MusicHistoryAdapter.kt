@@ -13,8 +13,8 @@ class MusicHistoryAdapter(
 
     inner class MusicHistoryViewHolder(private val binding: ItemMusicHistoryBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(musicHistoryData: MusicHistoryData) {
-            binding.title.text = musicHistoryData.title
-            binding.artist.text = musicHistoryData.artist
+            binding.tvItemHistoryTitle.text = musicHistoryData.title
+            binding.tvItemHistoryArtist.text = musicHistoryData.artist
             binding.root.setOnClickListener {
                 onItemClick(musicHistoryData.filePath)
             }

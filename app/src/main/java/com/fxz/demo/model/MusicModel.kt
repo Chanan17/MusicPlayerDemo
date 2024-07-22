@@ -1,6 +1,5 @@
 package com.fxz.demo.model
 
-import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
@@ -11,11 +10,8 @@ import android.media.MediaMetadataRetriever
 import android.os.Environment
 import android.os.IBinder
 import android.util.Log
-import android.widget.RemoteViews
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
-import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
 import com.fxz.demo.utils.MusicDatabaseHelper
 import java.io.File
 

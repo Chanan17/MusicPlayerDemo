@@ -6,7 +6,7 @@
     android:padding="14dp">
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/tv_item_history_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="title"
@@ -21,7 +21,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"/>
     <TextView
-        android:id="@+id/artist"
+        android:id="@+id/tv_item_history_artist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="artist"

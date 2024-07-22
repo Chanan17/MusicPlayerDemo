@@ -1,37 +1,27 @@
 package com.fxz.demo.view
-import androidx.drawerlayout.widget.DrawerLayout
-import android.content.pm.PackageManager
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.fxz.demo.viewmodel.MusicViewModel
 import android.Manifest
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.fxz.demo.R
-import com.fxz.demo.model.MusicData
 import com.fxz.demo.databinding.ActivityMainBinding
-import com.fxz.demo.databinding.ItemMusicBinding
 import com.fxz.demo.databinding.LayoutBottomControlBarBinding
 import com.fxz.demo.databinding.LayoutTopBinding
-import com.fxz.demo.model.MusicModel.updateNotification
+import com.fxz.demo.model.MusicData
 import com.fxz.demo.model.MusicService
 import com.fxz.demo.utils.ACTION_PAUSE_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEW_SONG
@@ -39,6 +29,7 @@ import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
 import com.fxz.demo.utils.ACTION_PLAY_PREV_SONG
 import com.fxz.demo.utils.ACTION_RESUME_SONG
 import com.fxz.demo.utils.PACKAGE_NAME
+import com.fxz.demo.viewmodel.MusicViewModel
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MusicViewModel by viewModels()
