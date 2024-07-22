@@ -14,12 +14,12 @@ class MusicAdapter(
 
     inner class MusicViewHolder(private val binding: ItemMusicBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(musicFile: MusicData) {
-            binding.musicTitle.text = musicFile.title
-            binding.musicArtist.text = musicFile.artist
+            binding.tvItemMusicTitle.text = musicFile.title
+            binding.tvItemMusicArtist.text = musicFile.artist
             if (musicFile.albumArt != null) {
-                binding.albumCover.setImageBitmap(musicFile.albumArt)
+                binding.ivItemAlbumCover.setImageBitmap(musicFile.albumArt)
             } else {
-                binding.albumCover.setImageResource(R.drawable.ic_album_placeholder)
+                binding.ivItemAlbumCover.setImageResource(R.drawable.ic_album_placeholder)
             }
             binding.root.setOnClickListener {
                 onMusicSelected(musicFile.filePath)

@@ -6,14 +6,14 @@
     android:padding="16dp">
 
     <ImageView
-        android:id="@+id/iv_album_cover"
+        android:id="@+id/iv_detail_album_cover"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_album_placeholder" />
 
     <TextView
-        android:id="@+id/tv_song_title"
+        android:id="@+id/tv_detail_song_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -21,7 +21,7 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/tv_song_artist"
+        android:id="@+id/tv_detail_song_artist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -33,20 +33,20 @@
         android:layout_marginTop="24dp">
 
         <TextView
-            android:id="@+id/tv_current_time"
+            android:id="@+id/tv_detail_current_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="00:00"
             android:layout_marginEnd="8dp" />
 
         <SeekBar
-            android:id="@+id/seek_bar"
+            android:id="@+id/seek_bar_detail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
         <TextView
-            android:id="@+id/tv_total_time"
+            android:id="@+id/tv_detail_total_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="00:00"
@@ -60,14 +60,14 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/btn_prev"
+            android:id="@+id/btn_detail_prev"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:contentDescription="@string/prev"
             android:src="@drawable/ic_prev" />
 
         <ImageButton
-            android:id="@+id/btn_play_pause"
+            android:id="@+id/btn_detail_play_pause"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginStart="32dp"
@@ -76,7 +76,7 @@
             android:src="@drawable/ic_play" />
 
         <ImageButton
-            android:id="@+id/btn_next"
+            android:id="@+id/btn_detail_next"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:contentDescription="@string/next"

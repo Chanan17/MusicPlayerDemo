@@ -32,14 +32,6 @@ class MusicService : Service() {
     private val CHANNEL_ID = "mydemo"
     private val NOTIFICATION_ID = 1
 
-//    private var musicFilePaths: List<String> = emptyList()
-//    private var currentSongIndex: Int = -1
-
-    override fun onCreate() {
-        super.onCreate()
-    }
-
-
     inner class LocalBinder : Binder() {
         fun getService(): MusicService = this@MusicService
     }
@@ -94,32 +86,11 @@ class MusicService : Service() {
             val channel = NotificationChannel(CHANNEL_ID, name, importance)
             notificationManager.createNotificationChannel(channel)
 
-
-//            remoteViews.setTextViewText(R.id.tv_song_title,"!11111111")
-
-
         }
-//        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-////                .setContentTitle("This is content title")
-//            .setSmallIcon(R.drawable.small_icon)
-//            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-//            .setDefaults(0)
-//            .setAutoCancel(true)
-//            .setCustomContentView(remoteViews)
-//
-////                .setCustomContentView(remoteViews)
-//            .setPriority(NotificationCompat.PRIORITY_HIGH)
-//            .build()
-//        startForeground(2, notification)
-//        notificationManager.notify(2,notification)
-
     }
 
     fun showNotification() {
         // 设置 RemoteViews 内容
-//        remoteViews.setTextViewText(R.id.tv_notification_song_title,"2222")
-//        remoteViews.setImageViewUri(R.id.album_cover,playUri)
-//        remoteViews.setImageViewResource(R.id.album_cover, R.drawable.ic_play)
         // 设置按钮点击事件
         val prevIntent = Intent(this, MusicService::class.java).apply {
             action = "ACTION_PREV"
@@ -139,19 +110,11 @@ class MusicService : Service() {
         val nextPendingIntent = PendingIntent.getService(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         remoteViews.setOnClickPendingIntent(R.id.notification_next_button, nextPendingIntent)
 
-//
-//        val deleteIntent = Intent(this, MusicService::class.java).apply {
-//            action = "STOP_SERVICE"
-//        }
-//        val deletePendingIntent = PendingIntent.getService(this, 0, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         // 创建通知
         notification = NotificationCompat.Builder(this, CHANNEL_ID)
-//                .setContentTitle("This is content title")
             .setSmallIcon(R.drawable.small_icon)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(remoteViews)
-//            .setDeleteIntent(deletePendingIntent)
-//                .setCustomContentView(remoteViews)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
         startForeground(NOTIFICATION_ID, notification)
@@ -186,39 +149,17 @@ class MusicService : Service() {
 
     fun pauseMusic() {
         Log.d("MusicService","pauseMusic()")
-//        val intent = Intent(ACTION_PAUSE_SONG)
-//        intent.setPackage("com.fxz.demo")
-//        sendBroadcast(intent)
         mediaPlayer?.pause()
     }
 
     fun resumeMusic() {
         Log.d("MusicService","resumeMusic()")
-//        val intent = Intent(ACTION_RESUME_SONG)
-//        intent.setPackage("com.fxz.demo")
-//        sendBroadcast(intent)
         mediaPlayer?.start()
     }
 
     fun isPlaying(): Boolean {
         return mediaPlayer?.isPlaying == true
     }
-
-//    fun playNextSong() {
-//        Log.d("MusicService","next1()")
-//        if (musicFilePaths.isNotEmpty()) {
-//            Log.d("MusicService","next2()")
-//            currentSongIndex = (currentSongIndex + 1) % musicFilePaths.size
-//            playMusic(musicFilePaths[currentSongIndex])
-//        }
-//    }
-//
-//    fun playPreviousSong() {
-//        if (musicFilePaths.isNotEmpty()) {
-//            currentSongIndex = if (currentSongIndex > 0) currentSongIndex - 1 else musicFilePaths.size - 1
-//            playMusic(musicFilePaths[currentSongIndex])
-//        }
-//    }
 
     override fun onDestroy() {
         super.onDestroy()

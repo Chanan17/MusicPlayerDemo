@@ -70,25 +70,12 @@ object MusicModel {
         }
     }
 
-    private var broadcastIsBound = false
-
-    private val playNextSongReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d("MusicModel", "Broadcast received")
-            if (intent?.action == ACTION_PLAY_NEXT_SONG || intent?.action == ACTION_PLAY_PREV_SONG) {
-                playNextSong()
-                updateNotification()
-            }
-        }
-    }
-
     fun updateNotification() {
         getCurMusic()?.let { musicService?.updateNotification(it) }
     }
 
 
     fun loadMusicFiles() {
-        val musicList = mutableListOf<MusicData>()
         val musicDir = Environment.getExternalStorageDirectory()
 
         Log.d("MusicModel", "MusicData directory: ${musicDir.absolutePath}")
@@ -103,7 +90,6 @@ object MusicModel {
         size = originalMusicList.size
         this.musicList.postValue(originalMusicList)
         this.searchMusicList.postValue(originalMusicList)
-//        listSize = musicList.size
     }
 
     private fun traverseDirectory(directory: File, musicList: MutableList<MusicData>) {

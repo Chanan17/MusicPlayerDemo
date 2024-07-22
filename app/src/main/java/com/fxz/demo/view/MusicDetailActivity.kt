@@ -9,14 +9,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.SeekBar
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import com.fxz.demo.R
+import com.fxz.demo.databinding.ActivityMusicDetailBinding
 import com.fxz.demo.model.MusicData
 import com.fxz.demo.utils.ACTION_PAUSE_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
@@ -27,34 +24,19 @@ import com.fxz.demo.viewmodel.MusicViewModel
 
 class MusicDetailActivity : AppCompatActivity() {
     private val viewModel: MusicViewModel by viewModels()
-    private lateinit var btn_play_pause: ImageButton
-    private lateinit var btn_prev: ImageButton
-    private lateinit var btn_next: ImageButton
-    private lateinit var tv_song_title: TextView
-    private lateinit var tv_song_artist: TextView
-    private lateinit var iv_album_cover: ImageView
-    private lateinit var seekBar: SeekBar
-    private lateinit var tv_current_time: TextView
-    private lateinit var tv_total_time: TextView
- 
+
+    private lateinit var binding: ActivityMusicDetailBinding
+
     private var isSeekbarDragging = false
-    private var isbroadcastBound = false
+    private var isBroadcastBound = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_music_detail)
+        binding = ActivityMusicDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        btn_play_pause = findViewById(R.id.btn_play_pause)
-        btn_prev = findViewById(R.id.btn_prev)
-        btn_next = findViewById(R.id.btn_next)
-        tv_song_title = findViewById(R.id.tv_song_title)
-        tv_song_artist = findViewById(R.id.tv_song_artist)
-        iv_album_cover = findViewById(R.id.iv_album_cover)
-        seekBar = findViewById(R.id.seek_bar)
-        tv_current_time = findViewById(R.id.tv_current_time)
-        tv_total_time = findViewById(R.id.tv_total_time)
-        
-        btn_play_pause.setOnClickListener {
+        //播放，上一首，下一首按钮监听
+        binding.btnDetailPlayPause.setOnClickListener {
             if (viewModel.isPlaying()) {
                 val intent = Intent(ACTION_PAUSE_SONG)
                 intent.setPackage(PACKAGE_NAME)
@@ -65,40 +47,27 @@ class MusicDetailActivity : AppCompatActivity() {
                 sendBroadcast(intent)
             }
         }
-//        playPauseButton.setOnClickListener {
-//            if (viewModel.isPlaying()) {
-//                pauseMusic()
-//                playPauseButton.setImageResource(R.drawable.ic_play)
-//            } else {
-//                resumeMusic()
-//                playPauseButton.setImageResource(R.drawable.ic_pause)
-//            }
-//        }
-
-        viewModel.currentSongIndex.observe(this, Observer {
-            updateMusicDetail(viewModel.getCurMusic())
-        })
-
-        btn_prev.setOnClickListener {
+        binding.btnDetailPrev.setOnClickListener {
             val intent = Intent(ACTION_PLAY_PREV_SONG)
             intent.setPackage(PACKAGE_NAME)
             sendBroadcast(intent)
         }
-        btn_next.setOnClickListener {
+        binding.btnDetailNext.setOnClickListener {
             val intent = Intent(ACTION_PLAY_NEXT_SONG)
             intent.setPackage(PACKAGE_NAME)
             sendBroadcast(intent)
         }
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+        //进度条拖拽
+        binding.seekBarDetail.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    // 用户拖动时，实时更新 currentTime
-                    tv_current_time.text = progressFormat(progress)
+                    // 用户拖动时，实时更新时间
+                    binding.tvDetailCurrentTime.text = progressFormat(progress)
                 }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
-                // 用户开始拖动时可以执行的操作
                 isSeekbarDragging = true
             }
 
@@ -109,8 +78,6 @@ class MusicDetailActivity : AppCompatActivity() {
                 viewModel.setNewProgress(newPosition)
             }
         })
-
-
         updateMusicDetail(viewModel.getCurMusic())
         registerReceiver()
     }
@@ -121,15 +88,16 @@ class MusicDetailActivity : AppCompatActivity() {
             if (intent?.action == ACTION_PLAY_NEXT_SONG || intent?.action == ACTION_PLAY_PREV_SONG) {
                 updateMusicDetail(viewModel.getCurMusic())
             }else if (intent?.action == ACTION_PAUSE_SONG) {
-                btn_play_pause.setImageResource(R.drawable.ic_play)
+                binding.btnDetailPlayPause.setImageResource(R.drawable.ic_play)
             }else if (intent?.action == ACTION_RESUME_SONG) {
-                btn_play_pause.setImageResource(R.drawable.ic_pause)
+                binding.btnDetailPlayPause.setImageResource(R.drawable.ic_pause)
             }
         }
     }
 
+    //注册广播
     fun registerReceiver() {
-        if(!isbroadcastBound){
+        if(!isBroadcastBound){
             val filter = IntentFilter().apply {
                 addAction(ACTION_PLAY_PREV_SONG)
                 addAction(ACTION_PLAY_NEXT_SONG)
@@ -142,85 +110,60 @@ class MusicDetailActivity : AppCompatActivity() {
                 this.registerReceiver(broadcastReceiver, filter)
             }
             Log.d("detail","register")
-            isbroadcastBound = true
+            isBroadcastBound = true
         }
 
     }
 
+    //更新详情页
     private fun updateMusicDetail(music: MusicData?) {
 
         if (music != null) {
             Log.d("detail","update")
-            tv_song_title.text = music.title
-            tv_song_artist.text = music.artist
+            binding.tvDetailSongTitle.text = music.title
+            binding.tvDetailSongArtist.text = music.artist
             if(music.albumArt != null) {
-                iv_album_cover.setImageBitmap(music.albumArt)
+                binding.ivDetailAlbumCover.setImageBitmap(music.albumArt)
             } else {
-                iv_album_cover.setImageResource(R.drawable.ic_album_placeholder)
+                binding.ivDetailAlbumCover.setImageResource(R.drawable.ic_album_placeholder)
             }
 
             if(isPlaying()){
-                btn_play_pause.setImageResource(R.drawable.ic_pause)
+                binding.btnDetailPlayPause.setImageResource(R.drawable.ic_pause)
             }else {
-                btn_play_pause.setImageResource(R.drawable.ic_play)
+                binding.btnDetailPlayPause.setImageResource(R.drawable.ic_play)
             }
 
-            tv_total_time.text = progressFormat(music.duration)
-            tv_current_time.text = getCurProgress()?.let { progressFormat(it) }
-            seekBar.max = music.duration
-            seekBar.progress = getCurProgress()?.toInt() ?: 0
+            binding.tvDetailTotalTime.text = progressFormat(music.duration)
+            binding.tvDetailCurrentTime.text = getCurProgress()?.let { progressFormat(it) }
+            binding.seekBarDetail.max = music.duration
+            binding.seekBarDetail.progress = getCurProgress()?.toInt() ?: 0
             updateSeekBar()
 
         }
     }
-    private val handler = Handler(Looper.getMainLooper())
 
+    //每秒更新进度条
+    private val handler = Handler(Looper.getMainLooper())
     private fun updateSeekBar() {
         handler.postDelayed(object : Runnable {
             override fun run() {
                 if (isPlaying() && !isSeekbarDragging) {
                     val process = getCurProgress()?.toInt() ?: 0
-                    tv_current_time.text = progressFormat(process)
-                    seekBar.progress = process
+                    binding.tvDetailCurrentTime.text = progressFormat(process)
+                    binding.seekBarDetail.progress = process
                 }
                 handler.postDelayed(this, 1000)
             }
         }, 1000)
     }
 
-
-    private fun pauseMusic() {
-        viewModel.pauseMusic()
-        btn_play_pause.setImageResource(R.drawable.ic_play)
-    }
-
-    private fun resumeMusic() {
-        viewModel.resumeMusic()
-        btn_play_pause.setImageResource(R.drawable.ic_pause)
-    }
-
-    private fun playPreviousSong() {
-        viewModel.playPreviousSong()
-        updateMusicDetail(viewModel.getCurMusic())
-
-//        if (musicFilePaths.isNotEmpty()) {
-//            currentSongIndex = if (currentSongIndex > 0) currentSongIndex - 1 else musicFilePaths.size - 1
-//            updateMusicDetail(musicFilePaths[currentSongIndex])
-//            viewModel.setCurrentSongIndex(currentSongIndex)
-//        }
-    }
-
-    private fun playNextSong() {
-        Log.d("detail", viewModel.getCurrentSongIndex().toString())
-        viewModel.playNextSong()
-//        viewModel.getCurMusic()?.let { updateMusicDetail(it.filePath) }
-        updateMusicDetail(viewModel.getCurMusic())
-    }
-
     private fun isPlaying() = viewModel.isPlaying()
 
+    //获取当前进度
     private fun getCurProgress() = viewModel.getCurProgress()
 
+    //进度时间格式化
     private fun progressFormat(progress: Int): String {
         val curProgress = progress / 1000
         val min = curProgress / 60

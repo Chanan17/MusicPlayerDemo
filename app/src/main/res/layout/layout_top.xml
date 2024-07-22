@@ -7,7 +7,7 @@
 
     <!-- 左边时钟图标按钮（历史播放） -->
     <ImageButton
-        android:id="@+id/history_button"
+        android:id="@+id/btn_main_history"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackgroundBorderless"
@@ -21,14 +21,14 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/history_button"
+        android:layout_toEndOf="@id/btn_main_history"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginStart="16dp">
 
         <!-- 右边输入框 -->
         <EditText
-            android:id="@+id/search_input"
+            android:id="@+id/et_main_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/search_hint"
@@ -44,7 +44,7 @@
 
         <!-- 右边搜索按钮 -->
         <ImageButton
-            android:id="@+id/search_button"
+            android:id="@+id/btn_main_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"

@@ -34,8 +34,6 @@ class MusicViewModel: ViewModel() {
         return model.getCurMusic()
     }
 
-//    fun getCurMusic() = currentSongIndex?.value?.let { musicFiles.value?.get(it) }
-
     fun playMusic(int: Int) {
         model.playMusic(int)
     }

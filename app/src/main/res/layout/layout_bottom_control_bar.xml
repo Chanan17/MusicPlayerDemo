@@ -7,13 +7,13 @@
     android:padding="8dp">
 
     <ImageView
-        android:id="@+id/album_cover"
+        android:id="@+id/iv_main_album_cover"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:src="@drawable/ic_album_placeholder" />
 
     <LinearLayout
-        android:id="@+id/bottom_bar"
+        android:id="@+id/ll_main_bottom_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -22,7 +22,7 @@
         android:layout_marginLeft="8dp">
 
         <TextView
-            android:id="@+id/song_title"
+            android:id="@+id/tv_main_song_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Song Title"
@@ -30,7 +30,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/song_artist"
+            android:id="@+id/tv_main_song_artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Artist"
@@ -38,7 +38,7 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/prev_button"
+        android:id="@+id/btn_main_prev"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackground"
@@ -46,7 +46,7 @@
         android:contentDescription="@string/prev" />
 
     <ImageButton
-        android:id="@+id/play_pause_button"
+        android:id="@+id/btn_main_play_pause"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackground"
@@ -54,7 +54,7 @@
         android:contentDescription="@string/play_pause" />
 
     <ImageButton
-        android:id="@+id/next_button"
+        android:id="@+id/btn_main_next"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackground"

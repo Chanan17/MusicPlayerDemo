@@ -13,6 +13,7 @@
         android:orientation="vertical">
 
         <include
+            android:id="@+id/layout_top"
             layout="@layout/layout_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -24,6 +25,7 @@
             android:layout_weight="1" />
 
         <include
+            android:id="@+id/layout_bottom"
             layout="@layout/layout_bottom_control_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
