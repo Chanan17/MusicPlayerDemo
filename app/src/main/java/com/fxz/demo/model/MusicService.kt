@@ -1,5 +1,6 @@
 package com.fxz.demo.model
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -24,7 +25,8 @@ import java.io.IOException
 
 class MusicService : Service() {
 
-    private var remoteViews = RemoteViews("com.fxz.demo", R.layout.notification2)
+    private lateinit var notification: Notification
+    private var remoteViews = RemoteViews("com.fxz.demo", R.layout.notification)
     private var mediaPlayer: MediaPlayer? = null
     private var currentSongPath: String? = null
     private val binder = LocalBinder()
@@ -32,8 +34,6 @@ class MusicService : Service() {
     private val CHANNEL_ID = "mydemo"
     private val NOTIFICATION_ID = 1
 
-    private val playUri = Uri.parse("android.resource://com.fxz.demo/${R.drawable.ic_play}")
-    private val pauseUri = Uri.parse("android.resource://com.fxz.demo/${R.drawable.ic_pause}")
 //    private var musicFilePaths: List<String> = emptyList()
 //    private var currentSongIndex: Int = -1
 
@@ -64,13 +64,15 @@ class MusicService : Service() {
                     val intent = Intent(ACTION_RESUME_SONG)
                     intent.setPackage("com.fxz.demo")
                     sendBroadcast(intent)
-                    remoteViews.setImageViewUri(R.id.notification_play_pause_button, playUri)
+                    remoteViews.setImageViewResource(R.id.notification_play_pause_button, R.drawable.ic_pause)
+                    startForeground(NOTIFICATION_ID, notification)
                 }else {
                     Log.d("service","notification playpause receive noplaying")
                     val intent = Intent(ACTION_PAUSE_SONG)
                     intent.setPackage("com.fxz.demo")
                     sendBroadcast(intent)
-                    remoteViews.setImageViewUri(R.id.notification_play_pause_button, pauseUri)
+                    remoteViews.setImageViewResource(R.id.notification_play_pause_button, R.drawable.ic_play)
+                    startForeground(NOTIFICATION_ID, notification)
 //                    remoteViews.setImageViewResource(R.id.play_pause_button, R.drawable.ic_pause)
                 }
             }
@@ -114,9 +116,9 @@ class MusicService : Service() {
 
     }
 
-    private fun showNotification() {
+    fun showNotification() {
         // 设置 RemoteViews 内容
-//        remoteViews.setTextViewText(R.id.tv_notification_song_title,"!111")
+//        remoteViews.setTextViewText(R.id.tv_notification_song_title,"2222")
 //        remoteViews.setImageViewUri(R.id.album_cover,playUri)
 //        remoteViews.setImageViewResource(R.id.album_cover, R.drawable.ic_play)
         // 设置按钮点击事件
@@ -139,7 +141,7 @@ class MusicService : Service() {
         remoteViews.setOnClickPendingIntent(R.id.notification_next_button, nextPendingIntent)
 
         // 创建通知
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        notification = NotificationCompat.Builder(this, CHANNEL_ID)
 //                .setContentTitle("This is content title")
             .setSmallIcon(R.drawable.small_icon)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
@@ -149,7 +151,6 @@ class MusicService : Service() {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
         startForeground(NOTIFICATION_ID, notification)
-        Log.d("service","show notification")
     }
 
     fun playMusic(songPath: String) {
@@ -235,8 +236,9 @@ class MusicService : Service() {
     }
 
     fun updateNotification(curMusic: MusicData) {
+
         Log.d("service","update notification ui")
-        remoteViews.setTextViewText(R.id.tv_notification_song_title, "2222")
+        remoteViews.setTextViewText(R.id.tv_notification_song_title, curMusic.title)
         remoteViews.setTextViewText(R.id.tv_notification_song_artist, curMusic.artist)
         if (curMusic.albumArt != null) {
             remoteViews.setImageViewBitmap(R.id.album_cover, curMusic.albumArt)
@@ -246,8 +248,7 @@ class MusicService : Service() {
 
         val playPauseIcon = if (isPlaying()) R.drawable.ic_pause else R.drawable.ic_play
         remoteViews.setImageViewResource(R.id.notification_play_pause_button, playPauseIcon)
-
-
+        startForeground(NOTIFICATION_ID, notification)
 
     }
 }

@@ -19,6 +19,7 @@ import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.core.view.GravityCompat
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var searchButton: ImageButton
     private lateinit var historyButton: ImageButton
     private lateinit var mainLayout: DrawerLayout
+    private lateinit var bottomBar: LinearLayout
 
     private val REQUEST_MEDIA_AUDIO = 1
 
@@ -115,7 +117,7 @@ class MainActivity : AppCompatActivity() {
         searchButton = findViewById(R.id.search_button)
         historyButton = findViewById(R.id.history_button)
         mainLayout = findViewById(R.id.main_layout)
-
+        bottomBar = findViewById(R.id.bottom_bar)
         // 禁用按钮
         updateControlButtons(false)
 
@@ -217,6 +219,19 @@ class MainActivity : AppCompatActivity() {
             intent.setPackage(PACKAGE_NAME)
             sendBroadcast(intent)
         }
+        albumCover.setOnClickListener {
+            if(viewModel.getCurMusic()!=null){
+                val intent = Intent(this, MusicDetailActivity::class.java)
+                startActivity(intent)
+            }
+        }
+        bottomBar.setOnClickListener {
+            if(viewModel.getCurMusic()!=null){
+                val intent = Intent(this, MusicDetailActivity::class.java)
+                startActivity(intent)
+            }
+        }
+
 
         viewModel.bindService(this@MainActivity)
         registerReceiver()
@@ -298,9 +313,10 @@ class MainActivity : AppCompatActivity() {
                 playPauseButton.setImageResource(R.drawable.ic_play)
             }
         } else {
-            songTitle.text = ""
-            songArtist.text = ""
-            albumCover.setImageResource(R.drawable.ic_album_placeholder)
+//            songTitle.text = ""
+//            songArtist.text = ""
+//            albumCover.setImageResource(R.drawable.ic_album_placeholder)
+//            playPauseButton.setImageResource(R.drawable.ic_play)
         }
     }
 

@@ -245,10 +245,12 @@ object MusicModel {
 
     fun pauseMusic() {
         musicService?.pauseMusic()
+        getCurMusic()?.let { musicService?.updateNotification(it) }
     }
 
     fun resumeMusic() {
         musicService?.resumeMusic()
+        getCurMusic()?.let { musicService?.updateNotification(it) }
     }
 
 
