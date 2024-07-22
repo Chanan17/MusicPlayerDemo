@@ -197,8 +197,12 @@ class MusicService : Service() {
     }
 
     fun isPlaying(): Boolean {
-        return mediaPlayer?.isPlaying == true
-    }
+        return try {
+            mediaPlayer?.isPlaying == true
+        } catch (e: IllegalStateException) {
+            Log.e("MusicService", "IllegalStateException in isPlaying(): ${e.message}")
+            false
+        }    }
 
 //    fun playNextSong() {
 //        Log.d("MusicService","next1()")
