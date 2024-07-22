@@ -81,6 +81,7 @@ class MusicService : Service() {
                 intent.setPackage("com.fxz.demo")
                 sendBroadcast(intent)
             }
+
         }
         return START_NOT_STICKY
     }
@@ -140,13 +141,18 @@ class MusicService : Service() {
         val nextPendingIntent = PendingIntent.getService(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         remoteViews.setOnClickPendingIntent(R.id.notification_next_button, nextPendingIntent)
 
+//
+//        val deleteIntent = Intent(this, MusicService::class.java).apply {
+//            action = "STOP_SERVICE"
+//        }
+//        val deletePendingIntent = PendingIntent.getService(this, 0, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         // 创建通知
         notification = NotificationCompat.Builder(this, CHANNEL_ID)
 //                .setContentTitle("This is content title")
             .setSmallIcon(R.drawable.small_icon)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(remoteViews)
-
+//            .setDeleteIntent(deletePendingIntent)
 //                .setCustomContentView(remoteViews)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()

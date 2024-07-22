@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fxz.demo.viewmodel.MusicViewModel
 import android.Manifest
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -27,6 +28,7 @@ import androidx.lifecycle.Observer
 import com.fxz.demo.R
 import com.fxz.demo.model.MusicData
 import com.fxz.demo.databinding.ActivityMainBinding
+import com.fxz.demo.model.MusicService
 import com.fxz.demo.utils.ACTION_PAUSE_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEW_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEXT_SONG
@@ -351,5 +353,9 @@ class MainActivity : AppCompatActivity() {
         return viewModel.isPlaying()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        stopService(Intent(this, MusicService::class.java))
+    }
 
 }

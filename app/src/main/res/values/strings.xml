@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Demo</string>
+    <string name="app_name">我的音乐Demo</string>
     <string name="prev">上一首</string>
     <string name="next">下一首</string>
     <string name="play_pause">暂停</string>
