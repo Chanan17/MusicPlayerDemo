@@ -25,14 +25,6 @@ class MusicDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         onCreate(db)
     }
 
-    fun updateTimestamp(filePath: String) {
-        val db = this.writableDatabase
-        val contentValues = ContentValues().apply {
-            put(COLUMN_TIMESTAMP, System.currentTimeMillis() / 1000) // 更新为当前时间戳
-        }
-        db.update(TABLE_NAME, contentValues, "$COLUMN_FILE_PATH = ?", arrayOf(filePath))
-    }
-
     companion object {
         private const val DATABASE_NAME = "music_history.db"
         private const val DATABASE_VERSION = 2

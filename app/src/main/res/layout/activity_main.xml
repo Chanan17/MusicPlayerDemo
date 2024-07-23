@@ -40,7 +40,6 @@
         android:background="#FFFFFF"
         android:orientation="vertical">
 
-        <!-- 使用一个占位的View来实现侧边栏宽度 -->
         <View
             android:layout_width="0dp"
             android:layout_height="0dp" />

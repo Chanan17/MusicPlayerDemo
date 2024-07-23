@@ -1,11 +1,9 @@
 package com.fxz.demo.viewmodel
 
-import android.app.Application
 import android.content.Context
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.fxz.demo.model.MusicData
+import com.fxz.demo.model.MusicHistoryData
 import com.fxz.demo.model.MusicModel
 
 class MusicViewModel: ViewModel() {
@@ -82,6 +80,10 @@ class MusicViewModel: ViewModel() {
 
     fun clearMusicHistory() {
         model.clearMusicHistory()
+    }
+
+    fun getMusicHistory(): List<MusicHistoryData> {
+        return model.getMusicHistory()
     }
 
 }

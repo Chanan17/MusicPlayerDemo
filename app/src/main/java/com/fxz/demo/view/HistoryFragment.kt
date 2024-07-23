@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fxz.demo.R
 import com.fxz.demo.databinding.FragmentHistoryBinding
-import com.fxz.demo.model.MusicModel
 import com.fxz.demo.utils.ACTION_PLAY_NEW_SONG
 import com.fxz.demo.utils.PACKAGE_NAME
 import com.fxz.demo.viewmodel.MusicViewModel
@@ -35,7 +34,7 @@ class HistoryFragment : Fragment() {
 
         //历史播放列表
         binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
-        adapter = MusicHistoryAdapter(MusicModel.getMusicHistory()) { filePath ->
+        adapter = MusicHistoryAdapter(viewModel.getMusicHistory()) { filePath ->
             Log.d("history",filePath)
             val selectedIndex = viewModel.musicFiles.value?.indexOfFirst { it.filePath == filePath } ?: 0
             viewModel.setCurrentSongIndex(selectedIndex)
