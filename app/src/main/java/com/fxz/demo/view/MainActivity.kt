@@ -1,5 +1,6 @@
 package com.fxz.demo.view
 import android.Manifest
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -9,8 +10,12 @@ import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -190,7 +195,27 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+        if (!isNotificationEnable()) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("通知未开启")
+            builder.setMessage("音乐通知未开启，是否前往设置开启？")
 
+            builder.setPositiveButton("是") { dialog, which ->
+                val intent = Intent()
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
+                intent.putExtra("app_package", PACKAGE_NAME)
+                intent.putExtra("android.provider.extra.APP_PACKAGE", PACKAGE_NAME)
+                intent.putExtra("app_uid", applicationInfo.uid)
+                startActivity(intent)
+            }
+
+            builder.setNegativeButton("否") { dialog, which ->
+                dialog.dismiss()
+            }
+
+            builder.show()
+        }
 
         viewModel.bindService(this@MainActivity)
         registerReceiver()
@@ -291,6 +316,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateNotification() {
         viewModel.updateNotification()
+    }
+
+    private fun isNotificationEnable(): Boolean {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        return notificationManager.areNotificationsEnabled()
     }
 
     override fun onDestroy() {
