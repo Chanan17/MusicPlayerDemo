@@ -71,7 +71,7 @@ object MusicModel {
     }
 
 
-    fun loadMusicFiles() {
+    fun loadMusicFiles(): Boolean {
         val musicDir = Environment.getExternalStorageDirectory()
 
         Log.d("MusicModel", "MusicData directory: ${musicDir.absolutePath}")
@@ -86,6 +86,7 @@ object MusicModel {
         size = originalMusicList.size
         this.musicList.postValue(originalMusicList)
         this.searchMusicList.postValue(originalMusicList)
+        return size!=0
     }
 
     private fun traverseDirectory(directory: File, musicList: MutableList<MusicData>) {
@@ -260,11 +261,12 @@ object MusicModel {
         musicService?.createAndShowNotification()
     }
 
-    fun updateMusicList(content: String) {
+    fun updateMusicList(content: String): Boolean {
         val searchResults = originalMusicList.filter {
             it.title.contains(content, ignoreCase = true) || it.artist.contains(content, ignoreCase = true)
         }
         searchMusicList.postValue(searchResults)
+        return searchResults.isNotEmpty()
     }
 
 

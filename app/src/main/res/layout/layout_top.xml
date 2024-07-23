@@ -39,7 +39,8 @@
             android:layout_centerVertical="true"
             android:textColor="@android:color/black"
             android:textColorHint="@android:color/darker_gray"
-            android:paddingEnd="48dp" />
+            android:paddingEnd="48dp"
+            android:maxLength="50"/>
 
         <!-- 右边搜索按钮 -->
         <ImageButton
@@ -51,6 +52,7 @@
             android:contentDescription="@string/search"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:padding="8dp" />
+            android:padding="8dp"
+            android:maxLength="50"/>
     </RelativeLayout>
 </RelativeLayout>

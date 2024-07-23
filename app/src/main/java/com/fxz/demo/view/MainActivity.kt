@@ -11,6 +11,7 @@ import android.media.MediaMetadataRetriever
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +25,8 @@ import com.fxz.demo.databinding.ActivityMainBinding
 import com.fxz.demo.databinding.LayoutBottomControlBarBinding
 import com.fxz.demo.databinding.LayoutTopBinding
 import com.fxz.demo.model.MusicData
+import com.fxz.demo.model.MusicModel.isPlaying
+import com.fxz.demo.model.MusicModel.updateNotification
 import com.fxz.demo.model.MusicService
 import com.fxz.demo.utils.ACTION_PAUSE_SONG
 import com.fxz.demo.utils.ACTION_PLAY_NEW_SONG
@@ -109,7 +112,11 @@ class MainActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_MEDIA_AUDIO), REQUEST_MEDIA_AUDIO)
             } else {
                 Log.d("Permission", "READ_MEDIA_AUDIO permission already granted")
-                viewModel.loadMusicFiles()
+                if(viewModel.loadMusicFiles()){
+                    binding.tvMainMusicTips.visibility = View.GONE
+                }else {
+                    binding.tvMainMusicTips.visibility = View.VISIBLE
+                }
             }
         } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -117,7 +124,11 @@ class MainActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_MEDIA_AUDIO)
             } else {
                 Log.d("Permission", "READ_EXTERNAL_STORAGE permission already granted")
-                viewModel.loadMusicFiles()
+                if(viewModel.loadMusicFiles()){
+                    binding.tvMainMusicTips.visibility = View.GONE
+                }else {
+                    binding.tvMainMusicTips.visibility = View.VISIBLE
+                }
             }
         }
 
@@ -162,7 +173,11 @@ class MainActivity : AppCompatActivity() {
 
         layoutTopBinding.btnMainSearch.setOnClickListener {
             val content = layoutTopBinding.etMainSearch.text.toString()
-            updateMusicList(content)
+            if(!updateMusicList(content) && binding.tvMainMusicTips.visibility != View.VISIBLE){
+                binding.tvMainSearchTips.visibility = View.VISIBLE
+            }else {
+                binding.tvMainSearchTips.visibility = View.GONE
+            }
         }
         layoutTopBinding.btnMainHistory.setOnClickListener{
             binding.mainLayout.openDrawer(GravityCompat.START)
@@ -225,8 +240,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.initializeDB(context)
     }
 
-    private fun updateMusicList(content: String) {
-        viewModel.updateMusicList(content)
+    private fun updateMusicList(content: String): Boolean {
+        return viewModel.updateMusicList(content)
     }
 
     private fun playMusic(index: Int) {
@@ -302,7 +317,11 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_MEDIA_AUDIO && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.d("Permission", "READ_MEDIA_AUDIO permission granted")
-            viewModel.loadMusicFiles()
+            if(viewModel.loadMusicFiles()){
+                binding.tvMainMusicTips.visibility = View.GONE
+            }else {
+                binding.tvMainMusicTips.visibility = View.VISIBLE
+            }
         } else {
             Log.d("Permission", "READ_MEDIA_AUDIO permission denied") }
     }

@@ -17,8 +17,8 @@ class MusicViewModel: ViewModel() {
 
     fun isPlaying() = model.isPlaying()
 
-    fun loadMusicFiles() {
-        model.loadMusicFiles()
+    fun loadMusicFiles(): Boolean {
+        return model.loadMusicFiles()
     }
 
     fun getCurrentSongIndex() = currentSongIndex.value
@@ -70,8 +70,8 @@ class MusicViewModel: ViewModel() {
         model.updateNotification()
     }
 
-    fun updateMusicList(content: String) {
-        model.updateMusicList(content)
+    fun updateMusicList(content: String): Boolean {
+        return model.updateMusicList(content)
     }
 
     fun initializeDB(context: Context) {
